@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import UsersTable from './UsersTable';
 import Sidebar from './Sidebar';
-import ApiService, { DashboardStats, RecentActivity } from '../services/apiService';
+import ApiService from '../services/apiService';
+import type { DashboardStats, RecentActivity } from '../types';
 
 interface DashboardProps {
   onLogout: () => void;
@@ -9,7 +10,7 @@ interface DashboardProps {
 
 const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeView, setActiveView] = useState('dashboard');
+  const [activeView] = useState('dashboard');
   const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null);
   const [recentActivities, setRecentActivities] = useState<RecentActivity | null>(null);
   const [loading, setLoading] = useState(true);
@@ -43,58 +44,21 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
     fetchDashboardData();
   }, []);
 
-  const stats = dashboardStats ? [
-    { title: 'Total Users', value: dashboardStats.total_users.toLocaleString(), change: '+12%', icon: '👥', color: 'blue' },
-    { title: 'Active Courses', value: dashboardStats.total_courses.toLocaleString(), change: '+8%', icon: '📚', color: 'green' },
-    { title: 'Tests Taken', value: dashboardStats.total_tests.toLocaleString(), change: '+23%', icon: '📝', color: 'purple' },
-    { title: 'Materials Downloaded', value: dashboardStats.total_materials.toLocaleString(), change: '+15%', icon: '📄', color: 'orange' },
-  ] : [
-    { title: 'Total Users', value: '0', change: '+0%', icon: '👥', color: 'blue' },
-    { title: 'Active Courses', value: '0', change: '+0%', icon: '📚', color: 'green' },
-    { title: 'Tests Taken', value: '0', change: '+0%', icon: '📝', color: 'purple' },
-    { title: 'Materials Downloaded', value: '0', change: '+0%', icon: '📄', color: 'orange' },
+  const stats = [
+    { title: 'Total Users', value: dashboardStats?.total_users?.toLocaleString() || '0', icon: '👥' },
+    { title: 'Active Courses', value: dashboardStats?.total_courses?.toLocaleString() || '0', icon: '📚' },
+    { title: 'Tests Available', value: dashboardStats?.total_tests?.toLocaleString() || '0', icon: '📝' },
+    { title: 'Materials Available', value: dashboardStats?.total_materials?.toLocaleString() || '0', icon: '📄' },
   ];
 
-  const activities = recentActivities ? [
-    ...recentActivities.recent_users.slice(0, 3).map((user, index) => ({
-      id: index + 1,
-      user: user.name,
-      action: 'signed up',
-      time: new Date(user.created_at).toLocaleString(),
-      type: 'signup'
-    })),
-    ...recentActivities.recent_enrollments.slice(0, 2).map((enrollment, index) => ({
-      id: index + 4,
-      user: 'User',
-      action: 'enrolled in course',
-      time: new Date(enrollment.created_at).toLocaleString(),
-      type: 'enrollment'
-    }))
-  ] : [
-    { id: 1, user: 'No recent activity', action: '', time: '', type: 'empty' },
-  ];
+  const activities = recentActivities?.recent_users?.slice(0, 5).map((user, index) => ({
+    id: index + 1,
+    user: user.name,
+    action: 'signed up',
+    time: new Date(user.created_at).toLocaleString(),
+    type: 'signup'
+  })) || [];
 
-  const getActivityIcon = (type: string) => {
-    switch (type) {
-      case 'test': return '📝';
-      case 'download': return '📄';
-      case 'enrollment': return '📚';
-      case 'profile': return '👤';
-      case 'signup': return '✨';
-      default: return '📋';
-    }
-  };
-
-  const getActivityColor = (type: string) => {
-    switch (type) {
-      case 'test': return 'text-blue-600 bg-blue-100';
-      case 'download': return 'text-green-600 bg-green-100';
-      case 'enrollment': return 'text-purple-600 bg-purple-100';
-      case 'profile': return 'text-orange-600 bg-orange-100';
-      case 'signup': return 'text-pink-600 bg-pink-100';
-      default: return 'text-gray-600 bg-gray-100';
-    }
-  };
 
   const renderContent = () => {
     switch (activeView) {
@@ -110,22 +74,21 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
           );
         }
         return (
-          <div className="space-y-6">
+          <div className="w-full">
             {/* Welcome Section */}
-            <div className="bg-gradient-to-r from-dark-blue to-dark-blue-light rounded-lg p-6 text-white">
-              <h1 className="text-3xl font-bold mb-2">Welcome back, Admin!</h1>
-              <p className="text-blue-100">Here's what's happening with your platform today.</p>
+            <div className="bg-gradient-to-r from-dark-blue to-dark-blue-light text-white p-2">
+              <h1 className="text-2xl font-bold">Welcome back, Admin!</h1>
+              <p className="text-blue-100 text-sm">Here's what's happening with your platform today.</p>
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
               {stats.map((stat, index) => (
-                <div key={index} className="bg-white rounded-lg shadow p-6">
+                <div key={index} className="bg-white shadow p-2 border-r border-gray-200">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-gray-600">{stat.title}</p>
                       <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                      <p className="text-sm text-green-600">{stat.change} from last month</p>
                     </div>
                     <div className="text-3xl">{stat.icon}</div>
                   </div>
@@ -133,27 +96,15 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
               ))}
             </div>
 
-            {/* Charts and Recent Activity */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Chart Placeholder */}
-              <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">User Growth</h3>
-                <div className="h-64 bg-gray-100 rounded-lg flex items-center justify-center">
-                  <div className="text-center">
-                    <div className="text-4xl mb-2">📈</div>
-                    <p className="text-gray-500">Chart will be implemented here</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Recent Activity */}
-              <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h3>
-                <div className="space-y-4">
-                  {activities.map((activity) => (
+            {/* Recent Activity - Full Width */}
+            <div className="bg-white shadow">
+              <div className="p-2">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Recent Users</h3>
+                <div className="space-y-2">
+                  {activities.length > 0 ? activities.map((activity) => (
                     <div key={activity.id} className="flex items-center space-x-3">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center ${getActivityColor(activity.type)}`}>
-                        {getActivityIcon(activity.type)}
+                      <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
+                        <span className="text-blue-600 text-sm">👤</span>
                       </div>
                       <div className="flex-1">
                         <p className="text-sm text-gray-900">
@@ -162,32 +113,13 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
                         <p className="text-xs text-gray-500">{activity.time}</p>
                       </div>
                     </div>
-                  ))}
+                  )) : (
+                    <p className="text-gray-500">No recent users</p>
+                  )}
                 </div>
-                <button className="mt-4 text-gold hover:text-gold-dark text-sm font-medium">
-                  View all activities →
-                </button>
               </div>
             </div>
 
-            {/* Quick Actions */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-gold hover:bg-gold hover:bg-opacity-10 transition-colors">
-                  <div className="text-2xl mb-2">👥</div>
-                  <p className="font-medium">Add New User</p>
-                </button>
-                <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-gold hover:bg-gold hover:bg-opacity-10 transition-colors">
-                  <div className="text-2xl mb-2">📚</div>
-                  <p className="font-medium">Create Course</p>
-                </button>
-                <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-gold hover:bg-gold hover:bg-opacity-10 transition-colors">
-                  <div className="text-2xl mb-2">📝</div>
-                  <p className="font-medium">Add Test</p>
-                </button>
-              </div>
-            </div>
           </div>
         );
     }
@@ -206,7 +138,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
       <div className="flex-1 flex flex-col overflow-hidden lg:ml-0">
         {/* Top Bar */}
         <header className="bg-white shadow-sm border-b border-gray-200">
-          <div className="flex items-center justify-between px-6 py-4">
+          <div className="flex items-center justify-between p-4">
             <div className="flex items-center space-x-4">
               <button
                 onClick={toggleSidebar}
@@ -244,8 +176,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-4 lg:p-6">
-          <div className="w-full max-w-none">
+        <main className="flex-1 overflow-y-auto">
+          <div className="w-full">
             {renderContent()}
           </div>
         </main>

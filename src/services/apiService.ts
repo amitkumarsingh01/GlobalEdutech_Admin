@@ -1,5 +1,5 @@
 // API Service for Admin Panel
-import { User, UsersResponse, AuthResponse, DashboardStats, RecentActivity } from '../types';
+import * as Types from '../types';
 
 const API_BASE_URL = 'https://server.globaledutechlearn.com';
 
@@ -28,11 +28,9 @@ class ApiService {
   }
 
   // Authentication
-  static async login(username: string, password: string): Promise<AuthResponse> {
-    // For admin login, we'll use a simple check
-    // In production, you should have a proper admin authentication endpoint
+  static async login(username: string, password: string): Promise<Types.AuthResponse> {
+    // Simple admin check for now - you can create a proper admin endpoint later
     if (username === 'admin' && password === 'admin123#') {
-      // Return a mock admin token - in production, this should come from your backend
       return {
         message: 'Login successful',
         user_id: 'admin',
@@ -58,35 +56,35 @@ class ApiService {
   }
 
   // Users Management
-  static async getAllUsers(): Promise<UsersResponse> {
+  static async getAllUsers(): Promise<Types.UsersResponse> {
     try {
       const response = await fetch(`${API_BASE_URL}/users`, {
         method: 'GET',
         headers: this.getAuthHeaders(),
       });
       
-      return this.handleResponse<UsersResponse>(response);
+      return this.handleResponse<Types.UsersResponse>(response);
     } catch (error) {
       console.error('Error fetching users:', error);
       throw new Error('Failed to fetch users');
     }
   }
 
-  static async getUserById(userId: string): Promise<{ user: User }> {
+  static async getUserById(userId: string): Promise<{ user: Types.User }> {
     try {
       const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
         method: 'GET',
         headers: this.getAuthHeaders(),
       });
       
-      return this.handleResponse<{ user: User }>(response);
+      return this.handleResponse<{ user: Types.User }>(response);
     } catch (error) {
       console.error('Error fetching user:', error);
       throw new Error('Failed to fetch user');
     }
   }
 
-  static async updateUser(userId: string, userData: Partial<User>, token: string): Promise<{ message: string }> {
+  static async updateUser(userId: string, userData: Partial<Types.User>, token: string): Promise<{ message: string }> {
     try {
       const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
         method: 'PUT',
@@ -116,14 +114,14 @@ class ApiService {
   }
 
   // Dashboard Statistics
-  static async getDashboardStats(): Promise<DashboardStats> {
+  static async getDashboardStats(): Promise<Types.DashboardStats> {
     try {
       const response = await fetch(`${API_BASE_URL}/dashboard/stats`, {
         method: 'GET',
         headers: this.getAuthHeaders(),
       });
       
-      return this.handleResponse<DashboardStats>(response);
+      return this.handleResponse<Types.DashboardStats>(response);
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
       // Return default stats if API fails
@@ -138,14 +136,14 @@ class ApiService {
     }
   }
 
-  static async getRecentActivities(): Promise<RecentActivity> {
+  static async getRecentActivities(): Promise<Types.RecentActivity> {
     try {
       const response = await fetch(`${API_BASE_URL}/dashboard/recent-activities`, {
         method: 'GET',
         headers: this.getAuthHeaders(),
       });
       
-      return this.handleResponse<RecentActivity>(response);
+      return this.handleResponse<Types.RecentActivity>(response);
     } catch (error) {
       console.error('Error fetching recent activities:', error);
       // Return empty activities if API fails
@@ -217,5 +215,8 @@ class ApiService {
     }
   }
 }
+
+// Re-export types for convenience
+export * from '../types';
 
 export default ApiService;
