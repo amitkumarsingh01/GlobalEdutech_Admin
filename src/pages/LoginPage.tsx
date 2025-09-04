@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, User } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import logo from '../assets/logo.png';
 
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState<string>('');
@@ -29,8 +30,8 @@ const LoginPage: React.FC = () => {
       <div className="max-w-md w-full space-y-8">
         <div className="bg-white rounded-2xl shadow-2xl p-8 backdrop-blur-sm bg-opacity-95">
           <div className="text-center">
-            <div className="mx-auto h-20 w-20 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-full flex items-center justify-center mb-6 shadow-lg">
-              <User className="h-10 w-10 text-white" />
+            <div className="mx-auto h-20 w-20 rounded-full bg-white flex items-center justify-center mb-6 shadow-lg">
+              <img src={logo} alt="Logo" className="h-16 w-16 object-contain" />
             </div>
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h2>
             <p className="text-gray-600 text-lg">Sign in to your admin panel</p>
