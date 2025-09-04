@@ -1,6 +1,7 @@
 import React from 'react';
-import { BookOpen, FileText, User, Users, Building2, MessageSquareQuote, Bell, Newspaper, ClipboardList, FileSignature, Phone, Mail, X, LogOut } from 'lucide-react';
+import { BookOpen, FileText, Users, Building2, MessageSquareQuote, Bell, Newspaper, ClipboardList, Phone, X, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import logo from '../assets/logo.png';
 
 export type PageId = 'dashboard' | 'institutions' | 'testimonials' | 'course' | 'test' | 'material' | 'users' | 'notifications' | 'current_affairs' | 'enrollments' | 'terms' | 'contact' | 'messages' | 'profile' | 'logout';
 
@@ -50,7 +51,10 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, setCurrentPage, isMobile
         ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
         <div className="flex items-center justify-between h-20 px-6 bg-blue-900 border-b border-blue-700">
-          <h1 className="text-2xl font-bold text-yellow-400">Admin Panel</h1>
+          <div className="flex items-center gap-3">
+            <img src={logo} alt="Logo" className="w-10 h-10 rounded-full bg-white p-1" />
+            <h1 className="text-2xl font-bold text-yellow-400">Admin Panel</h1>
+          </div>
           <button
             onClick={() => setIsMobileOpen(false)}
             className="lg:hidden text-white hover:text-yellow-400 transition-colors p-2 rounded-lg hover:bg-blue-800"
@@ -61,8 +65,8 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, setCurrentPage, isMobile
 
         <div className="px-6 py-6">
           <div className="flex items-center space-x-4 mb-8 p-4 bg-blue-800 bg-opacity-50 rounded-xl">
-            <div className="h-12 w-12 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-full flex items-center justify-center shadow-lg">
-              <User className="h-7 w-7 text-white" />
+            <div className="h-12 w-12 rounded-full overflow-hidden bg-white shadow-lg flex items-center justify-center">
+              <img src={logo} alt="Admin" className="h-12 w-12 object-contain p-1" />
             </div>
             <div>
               <p className="text-white font-semibold text-lg">{user?.username}</p>
