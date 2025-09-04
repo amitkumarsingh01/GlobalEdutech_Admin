@@ -41,3 +41,71 @@ export interface RecentActivity {
   recent_enrollments: any[];
   recent_test_attempts: any[];
 }
+
+// Domain Models
+export interface Institution {
+  _id: string;
+  name: string;
+  description: string;
+  vision?: string;
+  mission?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Testimonial {
+  _id: string;
+  title: string;
+  description: string;
+  student_name: string;
+  course: string;
+  rating: number;
+  media_type: string;
+  media_url: string;
+  student_image?: string | null;
+  is_active: boolean;
+  is_featured: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Course {
+  _id: string;
+  name: string;
+  title: string;
+  description: string;
+  category: string;
+  sub_category: string;
+  start_date: string;
+  end_date: string;
+  duration: string;
+  instructor: string;
+  price: number;
+  thumbnail_image: string;
+  enrolled_students: number;
+  status: string;
+  is_featured: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Material {
+  _id: string;
+  class_name: string;
+  course: string;
+  subject: string;
+  module: string;
+  title: string;
+  description: string;
+  academic_year: string;
+  time_period: number;
+  price: number;
+  file_url: string;
+  file_size?: number;
+  download_count: number;
+  tags: string[];
+  feedback: any[];
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}

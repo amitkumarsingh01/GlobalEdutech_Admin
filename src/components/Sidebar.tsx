@@ -1,103 +1,96 @@
-import { useState } from 'react';
+import React from 'react';
+import { GraduationCap, BookOpen, FileText, User, Users, Building2, MessageSquareQuote, X, LogOut } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
-interface SidebarProps {
-  isOpen: boolean;
-  onToggle: () => void;
-  onLogout: () => void;
-}
+export type PageId = 'dashboard' | 'institutions' | 'testimonials' | 'course' | 'test' | 'material' | 'users' | 'profile';
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onLogout }) => {
-  const [activeItem, setActiveItem] = useState('dashboard');
+type SidebarProps = {
+  currentPage: PageId;
+  setCurrentPage: (page: PageId) => void;
+  isMobileOpen: boolean;
+  setIsMobileOpen: (open: boolean) => void;
+};
 
-  const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-    { id: 'users', label: 'Users', icon: '👥' },
-    { id: 'courses', label: 'Courses', icon: '📚' },
-    { id: 'tests', label: 'Tests', icon: '📝' },
-    { id: 'materials', label: 'Materials', icon: '📄' },
-    { id: 'analytics', label: 'Analytics', icon: '📈' },
-    { id: 'settings', label: 'Settings', icon: '⚙️' },
+const Sidebar: React.FC<SidebarProps> = ({ currentPage, setCurrentPage, isMobileOpen, setIsMobileOpen }) => {
+  const { logout, user } = useAuth();
+
+  const menuItems: Array<{ id: PageId; label: string; icon: React.ComponentType<{ className?: string }> }> = [
+    { id: 'dashboard', label: 'Dashboard', icon: GraduationCap },
+    { id: 'institutions', label: 'Institutions', icon: Building2 },
+    { id: 'testimonials', label: 'Testimonials', icon: MessageSquareQuote },
+    { id: 'course', label: 'Course', icon: BookOpen },
+    { id: 'test', label: 'Test', icon: FileText },
+    { id: 'material', label: 'Material', icon: FileText },
+    { id: 'users', label: 'Users', icon: Users },
+    { id: 'profile', label: 'Profile', icon: User },
   ];
+
+  const handleItemClick = (itemId: PageId): void => {
+    setCurrentPage(itemId);
+    setIsMobileOpen(false);
+  };
 
   return (
     <>
-      {/* Mobile Overlay */}
-      {isOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-20 lg:hidden"
-          onClick={onToggle}
+      {isMobileOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setIsMobileOpen(false)}
         />
       )}
 
-      {/* Sidebar */}
       <div className={`
-        fixed top-0 left-0 h-full bg-dark-blue text-white transform transition-transform duration-300 ease-in-out z-30
-        ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-        lg:translate-x-0 lg:static lg:z-auto
-        w-64
+        fixed inset-y-0 left-0 z-50 w-72 bg-gradient-to-b from-blue-900 via-blue-800 to-blue-700 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 shadow-2xl
+        ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-blue-700">
-          <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gold rounded-full flex items-center justify-center">
-              <span className="text-dark-blue font-bold text-sm">VM</span>
-            </div>
-            <div>
-              <h1 className="text-lg font-semibold">Admin Panel</h1>
-              <p className="text-xs text-blue-200">Vidyarthi Mitraa</p>
-            </div>
-          </div>
+        <div className="flex items-center justify-between h-20 px-6 bg-blue-900 border-b border-blue-700">
+          <h1 className="text-2xl font-bold text-yellow-400">Admin Panel</h1>
           <button
-            onClick={onToggle}
-            className="lg:hidden text-white hover:text-gold transition-colors"
+            onClick={() => setIsMobileOpen(false)}
+            className="lg:hidden text-white hover:text-yellow-400 transition-colors p-2 rounded-lg hover:bg-blue-800"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <X className="h-6 w-6" />
           </button>
         </div>
 
-        {/* Navigation */}
-        <nav className="mt-6">
-          <div className="px-3">
-            {menuItems.map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setActiveItem(item.id)}
-                className={`
-                  w-full flex items-center space-x-3 px-4 py-3 rounded-lg mb-2 transition-colors
-                  ${activeItem === item.id 
-                    ? 'bg-gold text-dark-blue font-semibold' 
-                    : 'text-blue-100 hover:bg-blue-700 hover:text-white'
-                  }
-                `}
-              >
-                <span className="text-lg">{item.icon}</span>
-                <span>{item.label}</span>
-              </button>
-            ))}
-          </div>
-        </nav>
-
-        {/* User Info & Logout */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-blue-700">
-          <div className="flex items-center space-x-3 mb-4">
-            <div className="w-10 h-10 bg-gold rounded-full flex items-center justify-center">
-              <span className="text-dark-blue font-semibold">A</span>
+        <div className="px-6 py-6">
+          <div className="flex items-center space-x-4 mb-8 p-4 bg-blue-800 bg-opacity-50 rounded-xl">
+            <div className="h-12 w-12 bg-gradient-to-r from-yellow-500 to-yellow-600 rounded-full flex items-center justify-center shadow-lg">
+              <User className="h-7 w-7 text-white" />
             </div>
             <div>
-              <p className="text-sm font-medium">Admin User</p>
-              <p className="text-xs text-blue-200">admin@vidyarthimitraa.com</p>
+              <p className="text-white font-semibold text-lg">{user?.username}</p>
+              <p className="text-yellow-300 text-sm">{user?.role}</p>
             </div>
           </div>
+
+          <nav className="space-y-2">
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleItemClick(item.id)}
+                  className={`
+                    w-full flex items-center space-x-4 px-4 py-4 rounded-xl text-left transition-all duration-200 hover:bg-blue-700 group
+                    ${currentPage === item.id ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-white shadow-lg transform scale-[1.02]' : 'text-blue-100 hover:text-white'}
+                  `}
+                >
+                  <Icon className={`h-6 w-6 ${currentPage === item.id ? 'text-white' : 'text-blue-300 group-hover:text-white'}`} />
+                  <span className="font-medium text-lg">{item.label}</span>
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+
+        <div className="absolute bottom-0 left-0 right-0 p-6">
           <button
-            onClick={onLogout}
-            className="w-full flex items-center space-x-3 px-4 py-3 text-red-300 hover:bg-red-600 hover:text-white rounded-lg transition-colors"
+            onClick={logout}
+            className="w-full flex items-center space-x-4 px-4 py-4 text-blue-100 hover:text-white hover:bg-red-600 rounded-xl transition-all duration-200 group"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-            <span>Logout</span>
+            <LogOut className="h-6 w-6 text-blue-300 group-hover:text-white" />
+            <span className="font-medium text-lg">Logout</span>
           </button>
         </div>
       </div>
@@ -106,3 +99,5 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onToggle, onLogout }) => {
 };
 
 export default Sidebar;
+
+
