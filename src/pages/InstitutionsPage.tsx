@@ -129,45 +129,75 @@ const InstitutionsPage: React.FC = () => {
       </div>
 
       {formOpen && (
-        <div className="bg-white rounded-xl p-6 shadow">
-          <h3 className="text-xl font-semibold mb-4">{editing ? 'Edit Institution' : 'Create Institution'}</h3>
-          <form onSubmit={onSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input className="border rounded-lg px-3 py-2" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required />
-            <input className="border rounded-lg px-3 py-2" placeholder="Description" value={description} onChange={(e) => setDescription(e.target.value)} required />
-            <input className="border rounded-lg px-3 py-2" placeholder="Vision" value={vision} onChange={(e) => setVision(e.target.value)} />
-            <input className="border rounded-lg px-3 py-2" placeholder="Mission" value={mission} onChange={(e) => setMission(e.target.value)} />
-            <div className="col-span-1 md:col-span-2 flex gap-2">
-              <button type="submit" disabled={submitting} className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50">{submitting ? 'Saving...' : 'Save'}</button>
-              <button type="button" onClick={() => { setFormOpen(false); resetForm(); }} className="px-4 py-2 rounded-lg border">Cancel</button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4" onClick={() => { setFormOpen(false); }}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="px-6 py-4 border-b flex items-center justify-between bg-blue-900">
+              <h3 className="text-xl font-bold text-white">{editing ? 'Edit Institution' : 'Create Institution'}</h3>
+              <button className="text-yellow-400 hover:text-white" onClick={() => { setFormOpen(false); }}>{'✕'}</button>
             </div>
-          </form>
+            <div className="p-6">
+              <form onSubmit={onSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex flex-col">
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Name</label>
+                  <textarea className="border rounded-lg px-3 py-2 w-full h-32" placeholder="e.g., Global EduTech" value={name} onChange={(e) => setName(e.target.value)} required />
+                </div>
+                <div className="flex flex-col">
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Description</label>
+                  <textarea className="border rounded-lg px-3 py-2 w-full h-32" placeholder="Short description" value={description} onChange={(e) => setDescription(e.target.value)} required />
+                </div>
+                <div className="flex flex-col">
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Vision</label>
+                  <textarea className="border rounded-lg px-3 py-2 w-full h-32" placeholder="Our vision" value={vision} onChange={(e) => setVision(e.target.value)} />
+                </div>
+                <div className="flex flex-col">
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Mission</label>
+                  <textarea className="border rounded-lg px-3 py-2 w-full h-32" placeholder="Our mission" value={mission} onChange={(e) => setMission(e.target.value)} />
+                </div>
+                <div className="col-span-1 md:col-span-2 flex items-center justify-between pt-2">
+                  <button type="button" onClick={() => { setFormOpen(false); resetForm(); }} className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200">Cancel</button>
+                  <button type="submit" disabled={submitting} className="px-4 py-2 rounded-lg bg-yellow-500 text-white hover:bg-yellow-600 disabled:opacity-50">{submitting ? 'Saving...' : 'Save'}</button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Updated</th>
-              <th className="px-6 py-3"></th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {filtered.map((it) => (
-              <tr key={it._id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{it.name}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{it.description}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{new Date(it.updated_at).toLocaleString()}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
-                  <button onClick={() => openEdit(it)} className="px-3 py-1 rounded-md border">Edit</button>
-                  <button onClick={() => onDelete(it._id)} className="px-3 py-1 rounded-md bg-red-600 text-white hover:bg-red-700">Delete</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="grid grid-cols-1 gap-6">
+        {filtered.map((it) => (
+          <div key={it._id} className="rounded-2xl overflow-hidden shadow-lg border border-blue-100">
+            <div className="bg-blue-900 text-white p-5">
+              <h3 className="text-xl font-bold">{it.name}</h3>
+              <p className="text-yellow-300 text-xs mt-1">Updated: {new Date(it.updated_at).toLocaleString()}</p>
+            </div>
+            <div className="p-5 bg-white space-y-4">
+              <div>
+                <p className="text-sm text-gray-500 font-semibold mb-1">Description</p>
+                <p className="text-gray-800 text-sm leading-relaxed">{it.description}</p>
+              </div>
+              {(it.vision || it.mission) && (
+                <div className="grid grid-cols-1 gap-3">
+                  {it.vision && (
+                    <div className="bg-blue-50 rounded-lg p-3">
+                      <p className="text-xs font-semibold text-blue-900 mb-1">Vision</p>
+                      <p className="text-sm text-blue-900/90">{it.vision}</p>
+                    </div>
+                  )}
+                  {it.mission && (
+                    <div className="bg-yellow-50 rounded-lg p-3">
+                      <p className="text-xs font-semibold text-yellow-700 mb-1">Mission</p>
+                      <p className="text-sm text-yellow-800">{it.mission}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button onClick={() => openEdit(it)} className="px-4 py-2 rounded-lg border border-blue-900 text-blue-900 hover:bg-yellow-400 hover:border-yellow-400">Edit</button>
+                <button onClick={() => onDelete(it._id)} className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700">Delete</button>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

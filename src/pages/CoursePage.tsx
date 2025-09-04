@@ -143,75 +143,105 @@ const CoursePage: React.FC = () => {
       </div>
 
       {formOpen && (
-        <div className="bg-white rounded-xl p-6 shadow">
-          <h3 className="text-xl font-semibold mb-4">{editing ? 'Edit Course' : 'Create Course'}</h3>
-          <form onSubmit={onSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <input className="border rounded-lg px-3 py-2" placeholder="Name" value={payload.name} onChange={(e) => setPayload({ ...payload, name: e.target.value })} required />
-            <input className="border rounded-lg px-3 py-2" placeholder="Title" value={payload.title} onChange={(e) => setPayload({ ...payload, title: e.target.value })} required />
-            <input className="border rounded-lg px-3 py-2" placeholder="Category" value={payload.category} onChange={(e) => setPayload({ ...payload, category: e.target.value })} required />
-            <input className="border rounded-lg px-3 py-2" placeholder="Sub Category" value={payload.sub_category} onChange={(e) => setPayload({ ...payload, sub_category: e.target.value })} required />
-            <input className="border rounded-lg px-3 py-2" placeholder="Start Date (ISO)" value={payload.start_date} onChange={(e) => setPayload({ ...payload, start_date: e.target.value })} required />
-            <input className="border rounded-lg px-3 py-2" placeholder="End Date (ISO)" value={payload.end_date} onChange={(e) => setPayload({ ...payload, end_date: e.target.value })} required />
-            <input className="border rounded-lg px-3 py-2" placeholder="Duration" value={payload.duration} onChange={(e) => setPayload({ ...payload, duration: e.target.value })} required />
-            <input className="border rounded-lg px-3 py-2" placeholder="Instructor" value={payload.instructor} onChange={(e) => setPayload({ ...payload, instructor: e.target.value })} required />
-            <input className="border rounded-lg px-3 py-2" placeholder="Price" type="number" min={0} step="0.01" value={payload.price} onChange={(e) => setPayload({ ...payload, price: Number(e.target.value) })} required />
-            {!editing && (
-              <input className="border rounded-lg px-3 py-2" type="file" accept="image/*" onChange={(e) => setThumbnail(e.target.files?.[0] || null)} required />
-            )}
-            <div className="col-span-1 md:col-span-2 flex gap-2">
-              <button type="submit" disabled={submitting} className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50">{submitting ? 'Saving...' : 'Save'}</button>
-              <button type="button" onClick={() => { setFormOpen(false); resetForm(); }} className="px-4 py-2 rounded-lg border">Cancel</button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4" onClick={() => { setFormOpen(false); }}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="px-6 py-4 border-b flex items-center justify-between bg-blue-900">
+              <h3 className="text-xl font-bold text-white">{editing ? 'Edit Course' : 'Create Course'}</h3>
+              <button className="text-yellow-400 hover:text-white" onClick={() => { setFormOpen(false); }}>{'✕'}</button>
             </div>
-          </form>
+            <div className="p-6">
+              <form onSubmit={onSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Name</label>
+                  <input className="border rounded-lg px-3 py-2 w-full" placeholder="e.g., PUC1-SCI" value={payload.name} onChange={(e) => setPayload({ ...payload, name: e.target.value })} required />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Title</label>
+                  <input className="border rounded-lg px-3 py-2 w-full" placeholder="e.g., I PUC Science" value={payload.title} onChange={(e) => setPayload({ ...payload, title: e.target.value })} required />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Description</label>
+                  <textarea className="border rounded-lg px-3 py-2 w-full h-28" placeholder="Brief description of the course" value={payload.description} onChange={(e) => setPayload({ ...payload, description: e.target.value })} required />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Category</label>
+                  <input className="border rounded-lg px-3 py-2 w-full" placeholder="e.g., PUC" value={payload.category} onChange={(e) => setPayload({ ...payload, category: e.target.value })} required />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Sub Category</label>
+                  <input className="border rounded-lg px-3 py-2 w-full" placeholder="e.g., I PUC" value={payload.sub_category} onChange={(e) => setPayload({ ...payload, sub_category: e.target.value })} required />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Start Date (ISO)</label>
+                  <input className="border rounded-lg px-3 py-2 w-full" placeholder="YYYY-MM-DDTHH:mm:ss" value={payload.start_date} onChange={(e) => setPayload({ ...payload, start_date: e.target.value })} required />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">End Date (ISO)</label>
+                  <input className="border rounded-lg px-3 py-2 w-full" placeholder="YYYY-MM-DDTHH:mm:ss" value={payload.end_date} onChange={(e) => setPayload({ ...payload, end_date: e.target.value })} required />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Duration</label>
+                  <input className="border rounded-lg px-3 py-2 w-full" placeholder="e.g., 16 weeks" value={payload.duration} onChange={(e) => setPayload({ ...payload, duration: e.target.value })} required />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Instructor</label>
+                  <input className="border rounded-lg px-3 py-2 w-full" placeholder="Instructor name" value={payload.instructor} onChange={(e) => setPayload({ ...payload, instructor: e.target.value })} required />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Price</label>
+                  <input className="border rounded-lg px-3 py-2 w-full" placeholder="0" type="number" min={0} step="0.01" value={payload.price} onChange={(e) => setPayload({ ...payload, price: Number(e.target.value) })} required />
+                </div>
+                <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">Thumbnail</label>
+                    <input className="border rounded-lg px-3 py-2 w-full" type="file" accept="image/*" onChange={(e) => setThumbnail(e.target.files?.[0] || null)} required={!editing} />
+                  </div>
+                  {editing && (
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1">Current Thumbnail</label>
+                      <img src={ApiService.fileUrl((editing as Course).thumbnail_image) || ''} alt={(editing as Course).title} className="w-36 h-20 object-cover rounded-md border" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+                    </div>
+                  )}
+                </div>
+                <div className="col-span-1 md:col-span-2 flex items-center justify-between pt-2">
+                  <button type="button" onClick={() => { setFormOpen(false); resetForm(); }} className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200">Cancel</button>
+                  <button type="submit" disabled={submitting} className="px-4 py-2 rounded-lg bg-yellow-500 text-white hover:bg-yellow-600 disabled:opacity-50">{submitting ? 'Saving...' : 'Save'}</button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Thumbnail</th> */}
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Instructor</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Updated</th>
-              <th className="px-6 py-3"></th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {filtered.map((it) => (
-              <tr key={it._id} className="hover:bg-gray-50">
-                {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {ApiService.fileUrl(it.thumbnail_image) ? (
-                    <img
-                      src={ApiService.fileUrl(it.thumbnail_image) || ''}
-                      alt={it.title}
-                      className="w-16 h-16 object-cover rounded-md border"
-                      onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-                    />
-                  ) : (
-                    <div className="w-16 h-16 flex items-center justify-center bg-gray-100 text-gray-500 text-xs rounded-md border">
-                      img not available
-                    </div>
-                  )}
-                </td> */}
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{it.title}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{it.category} / {it.sub_category}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{it.instructor}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">₹ {it.price}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{new Date(it.updated_at).toLocaleString()}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
-                  <button onClick={() => openEdit(it)} className="px-3 py-1 rounded-md border">Edit</button>
-                  <button onClick={() => onDelete(it._id)} className="px-3 py-1 rounded-md bg-red-600 text-white hover:bg-red-700">Delete</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+        {filtered.map((it) => (
+          <div key={it._id} className="rounded-2xl overflow-hidden shadow-lg border border-blue-100 bg-white flex flex-col">
+            <div className="relative w-full h-40 bg-gray-100 flex items-center justify-center">
+              {ApiService.fileUrl(it.thumbnail_image) ? (
+                <img src={ApiService.fileUrl(it.thumbnail_image) || ''} alt={it.title} className="w-full h-40 object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+              ) : (
+                <div className="text-gray-500">img not available</div>
+              )}
+            </div>
+            <div className="p-5">
+              <h3 className="text-lg font-bold text-gray-900">{it.title}</h3>
+              <p className="text-sm text-gray-600 mt-1">{it.description}</p>
+              <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
+                <div className="bg-blue-50 rounded-lg p-2"><span className="font-semibold text-blue-900">Category:</span> {it.category} / {it.sub_category}</div>
+                <div className="bg-yellow-50 rounded-lg p-2"><span className="font-semibold text-yellow-700">Instructor:</span> {it.instructor}</div>
+                <div className="bg-blue-50 rounded-lg p-2"><span className="font-semibold text-blue-900">Price:</span> ₹ {it.price}</div>
+                <div className="bg-yellow-50 rounded-lg p-2"><span className="font-semibold text-yellow-700">Updated:</span> {new Date(it.updated_at).toLocaleString()}</div>
+              </div>
+              <div className="mt-4 flex items-center justify-end gap-2">
+                <button onClick={() => openEdit(it)} className="px-4 py-2 rounded-lg border border-blue-900 text-blue-900 hover:bg-yellow-400 hover:border-yellow-400">Edit</button>
+                <button onClick={() => onDelete(it._id)} className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700">Delete</button>
+              </div>
+            </div>
+          </div>
+        ))}
     </div>
-  );
+  </div>
+);
 };
 
 export default CoursePage;

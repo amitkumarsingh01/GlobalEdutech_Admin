@@ -89,6 +89,23 @@ class ApiService {
     }
   }
 
+  // User-related: downloads and test attempts
+  static async getUserDownloads(userId: string): Promise<{ downloads: any[] }> {
+    const response = await fetch(`${API_BASE_URL}/downloads/user/${userId}`, {
+      method: 'GET',
+      headers: this.getAuthHeaders(),
+    });
+    return this.handleResponse(response);
+  }
+
+  static async getUserTestAttempts(userId: string): Promise<{ attempts: any[] }> {
+    const response = await fetch(`${API_BASE_URL}/test-attempts/user/${userId}`, {
+      method: 'GET',
+      headers: this.getAuthHeaders(),
+    });
+    return this.handleResponse(response);
+  }
+
   static async updateUser(userId: string, userData: Partial<Types.User>, token: string): Promise<{ message: string }> {
     try {
       const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
@@ -229,6 +246,18 @@ class ApiService {
       console.error('Error fetching materials:', error);
       throw new Error('Failed to fetch materials');
     }
+  }
+
+  // File upload helpers
+  static async uploadImage(file: File, token?: string): Promise<{ message: string; file_path: string }> {
+    const form = new FormData();
+    form.append('file', file);
+    const response = await fetch(`${API_BASE_URL}/upload/image`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      body: form,
+    });
+    return this.handleResponse(response);
   }
 
   // ========== Notifications CRUD ==========
