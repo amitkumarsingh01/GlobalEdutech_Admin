@@ -8,10 +8,16 @@ import TestPage from '../pages/TestPage';
 import MaterialPage from '../pages/MaterialPage';
 import UsersPage from '../pages/UsersPage';
 import ProfilePage from '../pages/ProfilePage';
+import NotificationsPage from '../pages/NotificationsPage';
+import CurrentAffairsPage from '../pages/CurrentAffairsPage';
+import EnrollmentsPage from '../pages/EnrollmentsPage';
+import TermsPage from '../pages/TermsPage';
+import ContactPage from '../pages/ContactPage';
+import MessagesPage from '../pages/MessagesPage';
 import { Menu } from 'lucide-react';
 
 const DashboardLayout: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState<PageId>('dashboard');
+  const [currentPage, setCurrentPage] = useState<PageId>('users');
   const [isMobileOpen, setIsMobileOpen] = useState<boolean>(false);
 
   const renderCurrentPage = (): React.ReactNode => {
@@ -30,6 +36,18 @@ const DashboardLayout: React.FC = () => {
         return <MaterialPage />;
       case 'users':
         return <UsersPage />;
+      case 'notifications':
+        return <NotificationsPage />;
+      case 'current_affairs':
+        return <CurrentAffairsPage />;
+      case 'enrollments':
+        return <EnrollmentsPage />;
+      case 'terms':
+        return <TermsPage />;
+      case 'contact':
+        return <ContactPage />;
+      case 'messages':
+        return <MessagesPage />;
       case 'profile':
         return <ProfilePage />;
       default:
@@ -53,6 +71,18 @@ const DashboardLayout: React.FC = () => {
         return 'Material Management';
       case 'users':
         return 'Users';
+      case 'notifications':
+        return 'Notifications';
+      case 'current_affairs':
+        return 'Current Affairs';
+      case 'enrollments':
+        return 'Enrollments';
+      case 'terms':
+        return 'Terms & Conditions';
+      case 'contact':
+        return 'Contact Info';
+      case 'messages':
+        return 'Contact Messages';
       case 'profile':
         return 'Profile Settings';
       default:

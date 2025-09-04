@@ -190,6 +190,32 @@ class ApiService {
     }
   }
 
+  static async createTest(data: Omit<Types.TestItem, '_id' | 'created_at' | 'updated_at' | 'date_published' | 'result_type' | 'answer_key' | 'tags' | 'attempts_count' | 'feedback' | 'is_active'>, token: string): Promise<{ message: string; id: string }> {
+    const response = await fetch(`${API_BASE_URL}/tests`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(token),
+      body: JSON.stringify(data),
+    });
+    return this.handleResponse(response);
+  }
+
+  static async updateTest(id: string, data: Partial<Types.TestItem>, token: string): Promise<{ message: string }> {
+    const response = await fetch(`${API_BASE_URL}/tests/${id}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders(token),
+      body: JSON.stringify(data),
+    });
+    return this.handleResponse(response);
+  }
+
+  static async deleteTest(id: string, token: string): Promise<{ message: string }> {
+    const response = await fetch(`${API_BASE_URL}/tests/${id}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders(token),
+    });
+    return this.handleResponse(response);
+  }
+
   // Materials Management
   static async getAllMaterials(): Promise<any> {
     try {
@@ -203,6 +229,86 @@ class ApiService {
       console.error('Error fetching materials:', error);
       throw new Error('Failed to fetch materials');
     }
+  }
+
+  // ========== Notifications CRUD ==========
+  static async getNotifications(): Promise<{ notifications: Types.NotificationItem[] }> {
+    const response = await fetch(`${API_BASE_URL}/notifications`, { method: 'GET', headers: this.getAuthHeaders() });
+    return this.handleResponse(response);
+  }
+  static async createNotification(data: Omit<Types.NotificationItem, '_id' | 'priority' | 'is_active' | 'read_by' | 'created_at' | 'updated_at'>, token: string): Promise<{ message: string; id: string }> {
+    const response = await fetch(`${API_BASE_URL}/notifications`, { method: 'POST', headers: this.getAuthHeaders(token), body: JSON.stringify(data) });
+    return this.handleResponse(response);
+  }
+  static async updateNotification(id: string, data: Partial<Types.NotificationItem>, token: string): Promise<{ message: string }> {
+    const response = await fetch(`${API_BASE_URL}/notifications/${id}`, { method: 'PUT', headers: this.getAuthHeaders(token), body: JSON.stringify(data) });
+    return this.handleResponse(response);
+  }
+  static async deleteNotification(id: string, token: string): Promise<{ message: string }> {
+    const response = await fetch(`${API_BASE_URL}/notifications/${id}`, { method: 'DELETE', headers: this.getAuthHeaders(token) });
+    return this.handleResponse(response);
+  }
+
+  // ========== Current Affairs CRUD ==========
+  static async getCurrentAffairs(): Promise<{ current_affairs: Types.CurrentAffairsItem[] }> {
+    const response = await fetch(`${API_BASE_URL}/current-affairs`, { method: 'GET', headers: this.getAuthHeaders() });
+    return this.handleResponse(response);
+  }
+  static async createCurrentAffairs(data: Omit<Types.CurrentAffairsItem, '_id' | 'tags' | 'view_count' | 'likes' | 'is_active' | 'is_featured' | 'created_at' | 'updated_at'>, token: string): Promise<{ message: string; id: string }> {
+    const response = await fetch(`${API_BASE_URL}/current-affairs`, { method: 'POST', headers: this.getAuthHeaders(token), body: JSON.stringify(data) });
+    return this.handleResponse(response);
+  }
+  static async updateCurrentAffairs(id: string, data: Partial<Types.CurrentAffairsItem>, token: string): Promise<{ message: string }> {
+    const response = await fetch(`${API_BASE_URL}/current-affairs/${id}`, { method: 'PUT', headers: this.getAuthHeaders(token), body: JSON.stringify(data) });
+    return this.handleResponse(response);
+  }
+  static async deleteCurrentAffairs(id: string, token: string): Promise<{ message: string }> {
+    const response = await fetch(`${API_BASE_URL}/current-affairs/${id}`, { method: 'DELETE', headers: this.getAuthHeaders(token) });
+    return this.handleResponse(response);
+  }
+
+  // ========== Enrollments (read-only for admin list, delete) ==========
+  static async getEnrollmentsByCourse(courseId: string): Promise<{ enrollments: Types.EnrollmentItem[] }> {
+    const response = await fetch(`${API_BASE_URL}/enrollments/course/${courseId}`, { method: 'GET', headers: this.getAuthHeaders() });
+    return this.handleResponse(response);
+  }
+  static async getEnrollmentsByUser(userId: string): Promise<{ enrollments: Types.EnrollmentItem[] }> {
+    const response = await fetch(`${API_BASE_URL}/enrollments/user/${userId}`, { method: 'GET', headers: this.getAuthHeaders() });
+    return this.handleResponse(response);
+  }
+  static async deleteEnrollment(id: string, token: string): Promise<{ message: string }> {
+    const response = await fetch(`${API_BASE_URL}/enrollments/${id}`, { method: 'DELETE', headers: this.getAuthHeaders(token) });
+    return this.handleResponse(response);
+  }
+
+  // ========== Terms ==========
+  static async getActiveTerms(): Promise<{ terms: Types.TermsItem }> {
+    const response = await fetch(`${API_BASE_URL}/terms-conditions`, { method: 'GET', headers: this.getAuthHeaders() });
+    return this.handleResponse(response);
+  }
+  static async updateTerms(id: string, data: Partial<Types.TermsItem>, token: string): Promise<{ message: string }> {
+    const response = await fetch(`${API_BASE_URL}/terms-conditions/${id}`, { method: 'PUT', headers: this.getAuthHeaders(token), body: JSON.stringify(data) });
+    return this.handleResponse(response);
+  }
+
+  // ========== Contact ==========
+  static async getContact(): Promise<{ contact: Types.ContactItem }> {
+    const response = await fetch(`${API_BASE_URL}/contact`, { method: 'GET', headers: this.getAuthHeaders() });
+    return this.handleResponse(response);
+  }
+  static async updateContact(id: string, data: Partial<Types.ContactItem>, token: string): Promise<{ message: string }> {
+    const response = await fetch(`${API_BASE_URL}/contact/${id}`, { method: 'PUT', headers: this.getAuthHeaders(token), body: JSON.stringify(data) });
+    return this.handleResponse(response);
+  }
+
+  // ========== Contact Messages ==========
+  static async getContactMessages(): Promise<{ messages: Types.ContactMessageItem[] }> {
+    const response = await fetch(`${API_BASE_URL}/contact-messages`, { method: 'GET', headers: this.getAuthHeaders() });
+    return this.handleResponse(response);
+  }
+  static async deleteContactMessage(id: string, token: string): Promise<{ message: string }> {
+    const response = await fetch(`${API_BASE_URL}/contact-messages/${id}`, { method: 'DELETE', headers: this.getAuthHeaders(token) });
+    return this.handleResponse(response);
   }
 
   // ========== Institutions CRUD ==========

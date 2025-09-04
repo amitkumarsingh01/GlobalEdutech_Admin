@@ -109,3 +109,102 @@ export interface Material {
   created_at: string;
   updated_at: string;
 }
+
+export interface TestItem {
+  _id: string;
+  class_name: string;
+  course: string;
+  subject: string;
+  module: string;
+  test_title: string;
+  description: string;
+  total_questions: number;
+  total_marks: number;
+  duration: number;
+  difficulty_level: string;
+  time_period: number;
+  pass_mark: number;
+  date_published: string;
+  result_type: string;
+  answer_key: boolean;
+  tags: string[];
+  attempts_count: number;
+  feedback: any[];
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface NotificationItem {
+  _id: string;
+  title: string;
+  message: string;
+  type: string;
+  target_audience: string;
+  priority: string;
+  is_active: boolean;
+  read_by: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CurrentAffairsItem {
+  _id: string;
+  title: string;
+  content: string;
+  category: string;
+  publish_date: string;
+  tags: string[];
+  view_count: number;
+  likes: number;
+  is_active: boolean;
+  is_featured: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface EnrollmentItem {
+  _id: string;
+  user_id: string;
+  course_id: string;
+  enrollment_date: string;
+  status: string;
+  progress: number;
+  payment_status: string;
+  amount_paid: number;
+  certificate_issued: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TermsItem {
+  _id: string;
+  content?: string;
+  effective_date: string;
+  last_modified: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ContactItem {
+  _id: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ContactMessageItem {
+  _id: string;
+  name?: string;
+  email?: string;
+  subject?: string;
+  message?: string;
+  status: string;
+  priority: string;
+  created_at: string;
+  updated_at: string;
+}

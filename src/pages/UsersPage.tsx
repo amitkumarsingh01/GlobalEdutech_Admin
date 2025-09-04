@@ -23,14 +23,6 @@ const UsersPage: React.FC = () => {
     return () => { isMounted = false; };
   }, []);
 
-  if (loading) {
-    return <div className="text-gray-600">Loading users...</div>;
-  }
-
-  if (error) {
-    return <div className="text-red-600">{error}</div>;
-  }
-
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return users;
@@ -40,6 +32,14 @@ const UsersPage: React.FC = () => {
         .some((v) => String(v).toLowerCase().includes(q))
     );
   }, [users, query]);
+
+  if (loading) {
+    return <div className="text-gray-600">Loading users...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-600">{error}</div>;
+  }
 
   return (
     <div className="space-y-6">
