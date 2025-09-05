@@ -14,14 +14,29 @@ const ContactPage: React.FC = () => {
   const validateForm = (): boolean => {
     const errors: Record<string, string> = {};
     
-    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-      errors.email = 'Please enter a valid email address';
+    // Email validation - only if email is provided and not empty
+    if (form.email && form.email.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(form.email.trim())) {
+        errors.email = 'Please enter a valid email address';
+      }
     }
     
-    if (form.phone && !/^[\+]?[1-9][\d]{0,15}$/.test(form.phone.replace(/\s/g, ''))) {
-      errors.phone = 'Please enter a valid phone number';
+    // Phone validation - only if phone is provided and not empty
+    if (form.phone && form.phone.trim()) {
+      const cleanPhone = form.phone.replace(/[\s\-\(\)\.]/g, ''); // Remove spaces, dashes, parentheses, dots
+      const phoneRegex = /^[\+]?[1-9][\d]{7,15}$/;
+      if (!phoneRegex.test(cleanPhone)) {
+        errors.phone = 'Please enter a valid phone number (8-15 digits)';
+      }
     }
     
+    // Address validation - no specific validation needed, just check if it's a string
+    if (form.address && typeof form.address !== 'string') {
+      errors.address = 'Address must be text';
+    }
+    
+    console.log('Validation errors:', errors); // Debug log
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -36,16 +51,35 @@ const ContactPage: React.FC = () => {
 
   useEffect(() => {
     (async () => {
-      try { const res = await ApiService.getContact(); setItem(res.contact); setForm(res.contact); }
+      try { 
+        const res = await ApiService.getContact(); 
+        setItem(res.contact); 
+        // Initialize form with contact data, ensuring empty strings are handled properly
+        const formData = {
+          address: res.contact?.address || '',
+          phone: res.contact?.phone || '',
+          email: res.contact?.email || '',
+        };
+        console.log('Initializing form with data:', formData); // Debug log
+        setForm(formData);
+      }
       catch (e: any) { setError(e?.message || 'Failed to load'); }
       finally { setLoading(false); }
     })();
   }, []);
 
+  // Debug form state changes
+  useEffect(() => {
+    console.log('Form state changed:', form); // Debug log
+  }, [form]);
+
   const onSave = async (): Promise<void> => {
     if (!token || !item) { setError('Not authorized'); return; }
     
+    console.log('Form data before validation:', form); // Debug log
+    
     if (!validateForm()) {
+      console.log('Validation errors:', validationErrors); // Debug log
       setError('Please fix the validation errors before saving');
       return;
     }
@@ -53,16 +87,24 @@ const ContactPage: React.FC = () => {
     setSaving(true);
     setError(null);
     try { 
+      console.log('Saving contact with data:', form); // Debug log
       await ApiService.updateContact(item._id, form, token);
       setItem({ ...item, ...form });
     }
-    catch (e: any) { setError(e?.message || 'Save failed'); }
+    catch (e: any) { 
+      console.error('Save error:', e); // Debug log
+      setError(e?.message || 'Save failed'); 
+    }
     finally { setSaving(false); }
   };
 
   const resetForm = () => {
     if (item) {
-      setForm(item);
+      setForm({
+        address: item.address || '',
+        phone: item.phone || '',
+        email: item.email || '',
+      });
       setValidationErrors({});
       setError(null);
     }
