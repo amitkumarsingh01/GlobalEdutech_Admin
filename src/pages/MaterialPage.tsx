@@ -28,6 +28,8 @@ const MaterialPage: React.FC = () => {
   });
   const [pdf, setPdf] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState<boolean>(false);
+  const [feedbackOpen, setFeedbackOpen] = useState<boolean>(false);
+  const [feedbackLoading, setFeedbackLoading] = useState<boolean>(false);
 
   // Course categories structure
   const courseCategories = {
@@ -142,6 +144,22 @@ const MaterialPage: React.FC = () => {
   const openPdfViewer = (material: Material) => {
     setSelectedMaterial(material);
     setPdfViewerOpen(true);
+  };
+
+  const openFeedback = async (material: Material) => {
+    setSelectedMaterial(material);
+    setFeedbackOpen(true);
+    setFeedbackLoading(true);
+    try {
+      const res = await ApiService.getMaterialById(material._id);
+      if (res && res.material) {
+        setSelectedMaterial(res.material as any);
+      }
+    } catch (e) {
+      // keep existing selected material if fetch fails
+    } finally {
+      setFeedbackLoading(false);
+    }
   };
 
   const formatFileSize = (bytes: number): string => {
@@ -367,6 +385,12 @@ const MaterialPage: React.FC = () => {
                   >
                     View PDF
                   </button>
+                  <button 
+                    onClick={() => openFeedback(it)} 
+                    className="px-3 py-1 rounded-md bg-yellow-100 text-yellow-700 hover:bg-yellow-200 text-xs"
+                  >
+                    Feedback
+                  </button>
                   <button onClick={() => openEdit(it)} className="px-3 py-1 rounded-md border border-gray-300 hover:bg-gray-50 text-xs">Edit</button>
                   <button onClick={() => onDelete(it._id)} className="px-3 py-1 rounded-md bg-red-600 text-white hover:bg-red-700 text-xs">Delete</button>
                 </td>
@@ -416,6 +440,45 @@ const MaterialPage: React.FC = () => {
                 className="w-full h-full border-0"
                 title={`PDF Viewer - ${selectedMaterial.title}`}
               />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Feedback Modal */}
+      {feedbackOpen && selectedMaterial && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black bg-opacity-50" onClick={() => { setFeedbackOpen(false); }}>
+          <div className="w-full max-w-2xl max-h-[80vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="px-4 py-3 bg-blue-900 flex items-center justify-between border-b border-blue-700">
+              <div>
+                <h3 className="text-lg font-bold text-white">Feedback</h3>
+                <p className="text-blue-200 text-sm">{selectedMaterial.title}</p>
+              </div>
+              <button 
+                className="text-yellow-400 hover:text-white text-xl font-bold" 
+                onClick={() => { setFeedbackOpen(false); }}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto flex-1">
+              {feedbackLoading ? (
+                <div className="text-gray-600">Loading feedback...</div>
+              ) : selectedMaterial.feedback && selectedMaterial.feedback.length > 0 ? (
+                <div className="space-y-3">
+                  {selectedMaterial.feedback.map((fb: any, idx: number) => (
+                    <div key={idx} className="border rounded-lg p-3 bg-gray-50">
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm font-semibold text-gray-800">Rating: {fb.rating}/5</div>
+                        <div className="text-xs text-gray-500">{fb.created_at ? new Date(fb.created_at).toLocaleString() : ''}</div>
+                      </div>
+                      {fb.comment && <p className="text-sm text-gray-700 mt-2">{fb.comment}</p>}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-gray-600">No feedback yet.</div>
+              )}
             </div>
           </div>
         </div>
