@@ -1,5 +1,5 @@
 import React from 'react';
-import { BookOpen, FileText, Users, Building2, MessageSquareQuote, Bell, Newspaper, ClipboardList, Phone, X, LogOut } from 'lucide-react';
+import { BookOpen, FileText, Users, Building2, MessageSquareQuote, Bell, Newspaper, Phone, X, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import logo from '../assets/logo.png';
 

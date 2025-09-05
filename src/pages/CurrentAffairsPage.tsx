@@ -28,8 +28,8 @@ const CurrentAffairsPage: React.FC = () => {
 
   // Filter options
   const categories = ['Politics', 'Economy', 'Science & Technology', 'Sports', 'International', 'Environment', 'Education', 'Health', 'Entertainment', 'General'];
-  const statusOptions = ['active', 'inactive'];
-  const featuredOptions = ['featured', 'not-featured'];
+  // const statusOptions = ['active', 'inactive'];
+  // const featuredOptions = ['featured', 'not-featured'];
 
   const loadAll = async (): Promise<void> => {
     setLoading(true);
