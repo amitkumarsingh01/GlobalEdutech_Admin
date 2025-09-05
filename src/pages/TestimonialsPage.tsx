@@ -75,18 +75,18 @@ const TestimonialsPage: React.FC = () => {
     setFormOpen(true);
   };
 
-  // const openEdit = (it: Testimonial): void => {
-  //   setEditing(it);
-  //   setTitle(it.title);
-  //   setDescription(it.description);
-  //   setStudentName(it.student_name);
-  //   setCourse(it.course);
-  //   setRating(it.rating);
-  //   setMediaType(it.media_type);
-  //   setMediaFile(null);
-  //   setStudentImage(null);
-  //   setFormOpen(true);
-  // };
+  const openEdit = (it: Testimonial): void => {
+    setEditing(it);
+    setTitle(it.title);
+    setDescription(it.description);
+    setStudentName(it.student_name);
+    setCourse(it.course);
+    setRating(it.rating);
+    setMediaType(it.media_type);
+    setMediaFile(null);
+    setStudentImage(null);
+    setFormOpen(true);
+  };
 
   const onSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();

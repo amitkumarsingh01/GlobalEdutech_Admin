@@ -1,9 +1,9 @@
 import React from 'react';
-import { BookOpen, FileText, Users, Building2, MessageSquareQuote, Bell, Newspaper, Phone, X, LogOut } from 'lucide-react';
+import { BookOpen, FileText, Users, Building2, MessageSquareQuote, Bell, Newspaper, Phone, X, LogOut, Images } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import logo from '../assets/logo.png';
 
-export type PageId = 'dashboard' | 'institutions' | 'testimonials' | 'course' | 'test' | 'material' | 'users' | 'notifications' | 'current_affairs' | 'enrollments' | 'terms' | 'contact' | 'messages' | 'profile' | 'logout';
+export type PageId = 'dashboard' | 'institutions' | 'testimonials' | 'carousel' | 'course' | 'test' | 'material' | 'users' | 'notifications' | 'current_affairs' | 'enrollments' | 'terms' | 'contact' | 'messages' | 'profile' | 'logout';
 
 type SidebarProps = {
   currentPage: PageId;
@@ -19,6 +19,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, setCurrentPage, isMobile
     { id: 'users', label: 'Users', icon: Users },
     { id: 'institutions', label: 'Institutions', icon: Building2 },
     { id: 'testimonials', label: 'Testimonials', icon: MessageSquareQuote },
+    { id: 'carousel', label: 'Carousel', icon: Images },
     { id: 'course', label: 'Course', icon: BookOpen },
     { id: 'test', label: 'Test', icon: FileText },
     { id: 'material', label: 'Material', icon: FileText },

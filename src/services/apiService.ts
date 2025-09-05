@@ -207,6 +207,14 @@ class ApiService {
     }
   }
 
+  static async getTestById(id: string): Promise<{ test: Types.TestItem }> {
+    const response = await fetch(`${API_BASE_URL}/tests/${id}`, {
+      method: 'GET',
+      headers: this.getAuthHeaders(),
+    });
+    return this.handleResponse(response);
+  }
+
   static async createTest(data: Omit<Types.TestItem, '_id' | 'created_at' | 'updated_at' | 'date_published' | 'result_type' | 'answer_key' | 'tags' | 'attempts_count' | 'feedback' | 'is_active'>, token: string): Promise<{ message: string; id: string }> {
     const response = await fetch(`${API_BASE_URL}/tests`, {
       method: 'POST',
@@ -521,6 +529,34 @@ class ApiService {
 
   static async deleteTestimonial(id: string, token: string): Promise<{ message: string }> {
     const response = await fetch(`${API_BASE_URL}/testimonials/${id}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders(token),
+    });
+    return this.handleResponse(response);
+  }
+
+  // ========== Carousel ==========
+  static async getCarousel(): Promise<{ items: Array<{ _id: string; image_url: string }> }> {
+    const response = await fetch(`${API_BASE_URL}/carousel`, {
+      method: 'GET',
+      headers: this.getAuthHeaders(),
+    });
+    return this.handleResponse(response);
+  }
+
+  static async createCarousel(image: File, token: string): Promise<{ message: string; id: string }> {
+    const form = new FormData();
+    form.append('image', image);
+    const response = await fetch(`${API_BASE_URL}/carousel`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      body: form,
+    });
+    return this.handleResponse(response);
+  }
+
+  static async deleteCarousel(id: string, token: string): Promise<{ message: string }> {
+    const response = await fetch(`${API_BASE_URL}/carousel/${id}`, {
       method: 'DELETE',
       headers: this.getAuthHeaders(token),
     });

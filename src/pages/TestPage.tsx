@@ -20,6 +20,8 @@ const TestPage: React.FC = () => {
   const [editing, setEditing] = useState<TestItem | null>(null);
   const [questionFormOpen, setQuestionFormOpen] = useState<boolean>(false);
   const [editingQuestion, setEditingQuestion] = useState<any>(null);
+  const [feedbackOpen, setFeedbackOpen] = useState<boolean>(false);
+  const [feedbackLoading, setFeedbackLoading] = useState<boolean>(false);
   const [questionPayload, setQuestionPayload] = useState({
     question: '',
     options: [
@@ -244,6 +246,22 @@ const TestPage: React.FC = () => {
     setSelectedTest(test);
     setQuestionsOpen(true);
     loadQuestions(test._id);
+  };
+
+  const openFeedback = async (test: TestItem) => {
+    setSelectedTest(test);
+    setFeedbackOpen(true);
+    setFeedbackLoading(true);
+    try {
+      const res = await ApiService.getTestById(test._id);
+      if (res && res.test) {
+        setSelectedTest(res.test as any);
+      }
+    } catch (e) {
+      // keep existing selected test if fetch fails
+    } finally {
+      setFeedbackLoading(false);
+    }
   };
 
   const resetForm = (): void => {
@@ -498,6 +516,7 @@ const TestPage: React.FC = () => {
                   <div className="text-sm text-gray-900">{it.course}</div>
                   <div className="text-sm text-gray-600">{it.sub_category || 'N/A'}</div>
                   <div className="text-sm text-gray-500">{it.subject}</div>
+                  <div className="text-sm font-medium text-green-700 mt-1">₹ {it.price}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
@@ -513,6 +532,7 @@ const TestPage: React.FC = () => {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{new Date(it.updated_at).toLocaleString()}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
                   <button onClick={() => openQuestions(it)} className="px-3 py-1 rounded-md bg-blue-100 text-blue-700 hover:bg-blue-200 text-xs">View Questions</button>
+                  <button onClick={() => openFeedback(it)} className="px-3 py-1 rounded-md bg-yellow-100 text-yellow-700 hover:bg-yellow-200 text-xs">Feedback</button>
                   <button onClick={() => openEdit(it)} className="px-3 py-1 rounded-md border border-gray-300 hover:bg-gray-50 text-xs">Edit</button>
                   <button onClick={() => onDelete(it._id)} className="px-3 py-1 rounded-md bg-red-600 text-white hover:bg-red-700 text-xs">Delete</button>
                 </td>
@@ -734,6 +754,45 @@ const TestPage: React.FC = () => {
                   </div>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Feedback Modal */}
+      {feedbackOpen && selectedTest && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black bg-opacity-50" onClick={() => { setFeedbackOpen(false); }}>
+          <div className="w-full max-w-2xl max-h-[80vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="px-4 py-3 bg-blue-900 flex items-center justify-between border-b border-blue-700">
+              <div>
+                <h3 className="text-lg font-bold text-white">Feedback</h3>
+                <p className="text-blue-200 text-sm">{selectedTest.test_title}</p>
+              </div>
+              <button 
+                className="text-yellow-400 hover:text-white text-xl font-bold" 
+                onClick={() => { setFeedbackOpen(false); }}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto flex-1">
+              {feedbackLoading ? (
+                <div className="text-gray-600">Loading feedback...</div>
+              ) : selectedTest.feedback && (selectedTest as any).feedback.length > 0 ? (
+                <div className="space-y-3">
+                  {(selectedTest as any).feedback.map((fb: any, idx: number) => (
+                    <div key={idx} className="border rounded-lg p-3 bg-gray-50">
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm font-semibold text-gray-800">Rating: {fb.rating}/5</div>
+                        <div className="text-xs text-gray-500">{fb.created_at ? new Date(fb.created_at).toLocaleString() : ''}</div>
+                      </div>
+                      {fb.comment && <p className="text-sm text-gray-700 mt-2">{fb.comment}</p>}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-gray-600">No feedback yet.</div>
+              )}
             </div>
           </div>
         </div>

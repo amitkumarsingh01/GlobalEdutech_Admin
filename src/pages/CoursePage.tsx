@@ -28,6 +28,10 @@ const CoursePage: React.FC = () => {
   const [showSubCategories, setShowSubCategories] = useState<boolean>(false);
   const [thumbnail, setThumbnail] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState<boolean>(false);
+  const [feedbackOpen, setFeedbackOpen] = useState<boolean>(false);
+  const [feedbackLoading, setFeedbackLoading] = useState<boolean>(false);
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+  const [courseFeedback, setCourseFeedback] = useState<any[]>([]);
 
   // Category and Subcategory data
   const courseCategories = {
@@ -190,6 +194,23 @@ const CoursePage: React.FC = () => {
       await loadAll();
     } catch (e: any) {
       setError(e?.message || 'Delete failed');
+    }
+  };
+
+  const openFeedback = async (course: Course) => {
+    setSelectedCourse(course);
+    setFeedbackOpen(true);
+    setFeedbackLoading(true);
+    try {
+      const res = await ApiService.getEnrollmentsByCourse(course._id);
+      const feedbacks = (res.enrollments || [])
+        .map((enr: any) => enr.feedback)
+        .filter((fb: any) => !!fb);
+      setCourseFeedback(feedbacks);
+    } catch (e) {
+      setCourseFeedback([]);
+    } finally {
+      setFeedbackLoading(false);
     }
   };
 
@@ -406,16 +427,54 @@ const CoursePage: React.FC = () => {
               </div>
               <div className="mt-4 flex items-center justify-end gap-2">
                 <button onClick={() => openEdit(it)} className="px-4 py-2 rounded-lg border border-blue-900 text-blue-900 hover:bg-yellow-400 hover:border-yellow-400">Edit</button>
+                <button onClick={() => openFeedback(it)} className="px-4 py-2 rounded-lg bg-yellow-100 text-yellow-700 hover:bg-yellow-200">Feedback</button>
                 <button onClick={() => onDelete(it._id)} className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700">Delete</button>
               </div>
             </div>
           </div>
         ))}
     </div>
+
+      {/* Feedback Modal */}
+      {feedbackOpen && selectedCourse && (
+        <div className="fixed inset-0 z-60 flex items-center justify-center bg-black bg-opacity-50" onClick={() => { setFeedbackOpen(false); }}>
+          <div className="w-full max-w-2xl max-h-[80vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            <div className="px-4 py-3 bg-blue-900 flex items-center justify-between border-b border-blue-700">
+              <div>
+                <h3 className="text-lg font-bold text-white">Feedback</h3>
+                <p className="text-blue-200 text-sm">{selectedCourse.title}</p>
+              </div>
+              <button 
+                className="text-yellow-400 hover:text-white text-xl font-bold" 
+                onClick={() => { setFeedbackOpen(false); }}
+              >
+                ✕
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto flex-1">
+              {feedbackLoading ? (
+                <div className="text-gray-600">Loading feedback...</div>
+              ) : courseFeedback && courseFeedback.length > 0 ? (
+                <div className="space-y-3">
+                  {courseFeedback.map((fb: any, idx: number) => (
+                    <div key={idx} className="border rounded-lg p-3 bg-gray-50">
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm font-semibold text-gray-800">Rating: {fb.rating}/5</div>
+                        <div className="text-xs text-gray-500">{fb.feedback_date ? new Date(fb.feedback_date).toLocaleString() : ''}</div>
+                      </div>
+                      {fb.comment && <p className="text-sm text-gray-700 mt-2">{fb.comment}</p>}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-gray-600">No feedback yet.</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
   </div>
 );
 };
 
 export default CoursePage;
-
-

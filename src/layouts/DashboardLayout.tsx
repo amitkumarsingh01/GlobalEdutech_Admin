@@ -14,6 +14,7 @@ import EnrollmentsPage from '../pages/EnrollmentsPage';
 import TermsPage from '../pages/TermsPage';
 import ContactPage from '../pages/ContactPage';
 import MessagesPage from '../pages/MessagesPage';
+import CarouselPage from '../pages/Carousel';
 import { Menu } from 'lucide-react';
 
 const DashboardLayout: React.FC = () => {
@@ -28,6 +29,8 @@ const DashboardLayout: React.FC = () => {
         return <InstitutionsPage />;
       case 'testimonials':
         return <TestimonialsPage />;
+      case 'carousel':
+        return <CarouselPage />;
       case 'course':
         return <CoursePage />;
       case 'test':
@@ -63,6 +66,8 @@ const DashboardLayout: React.FC = () => {
         return 'Institutions';
       case 'testimonials':
         return 'Testimonials';
+      case 'carousel':
+        return 'Carousel';
       case 'course':
         return 'Course Management';
       case 'test':
