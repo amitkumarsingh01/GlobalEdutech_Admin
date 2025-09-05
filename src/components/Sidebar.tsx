@@ -24,7 +24,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, setCurrentPage, isMobile
     { id: 'material', label: 'Material', icon: FileText },
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'current_affairs', label: 'Current Affairs', icon: Newspaper },
-    { id: 'enrollments', label: 'Enrollments', icon: ClipboardList },
+    // { id: 'enrollments', label: 'Enrollments', icon: ClipboardList },
     // { id: 'terms', label: 'Terms', icon: FileSignature },
     { id: 'contact', label: 'Contact', icon: Phone },
     // { id: 'messages', label: 'Messages', icon: Mail },
