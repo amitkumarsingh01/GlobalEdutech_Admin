@@ -216,6 +216,79 @@ class ApiService {
     return this.handleResponse(response);
   }
 
+  static async getTestQuestions(testId: string): Promise<{ questions: any[] }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/test-questions/test/${testId}`, {
+        method: 'GET',
+        headers: this.getAuthHeaders(),
+      });
+      
+      return this.handleResponse(response);
+    } catch (error) {
+      console.error('Error fetching test questions:', error);
+      throw new Error('Failed to fetch test questions');
+    }
+  }
+
+  static async createTestWithQuestions(data: { test: any; questions: any[] }, token: string): Promise<{ message: string; test_id: string; questions_count: number }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/tests/with-questions`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(token),
+        body: JSON.stringify(data),
+      });
+      
+      return this.handleResponse(response);
+    } catch (error) {
+      console.error('Error creating test with questions:', error);
+      throw new Error('Failed to create test with questions');
+    }
+  }
+
+  static async createQuestion(data: any, token: string): Promise<{ message: string; id: string }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/test-questions`, {
+        method: 'POST',
+        headers: this.getAuthHeaders(token),
+        body: JSON.stringify(data),
+      });
+      
+      return this.handleResponse(response);
+    } catch (error) {
+      console.error('Error creating question:', error);
+      throw new Error('Failed to create question');
+    }
+  }
+
+  static async updateQuestion(questionId: string, data: any, token: string): Promise<{ message: string }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/test-questions/${questionId}`, {
+        method: 'PUT',
+        headers: this.getAuthHeaders(token),
+        body: JSON.stringify(data),
+      });
+      
+      return this.handleResponse(response);
+    } catch (error) {
+      console.error('Error updating question:', error);
+      throw new Error('Failed to update question');
+    }
+  }
+
+  static async deleteQuestion(questionId: string, token: string): Promise<{ message: string }> {
+    try {
+      const response = await fetch(`${API_BASE_URL}/test-questions/${questionId}`, {
+        method: 'DELETE',
+        headers: this.getAuthHeaders(token),
+      });
+      
+      return this.handleResponse(response);
+    } catch (error) {
+      console.error('Error deleting question:', error);
+      throw new Error('Failed to delete question');
+    }
+  }
+
   static async updateTest(id: string, data: Partial<Types.TestItem>, token: string): Promise<{ message: string }> {
     const response = await fetch(`${API_BASE_URL}/tests/${id}`, {
       method: 'PUT',
@@ -404,7 +477,14 @@ class ApiService {
     const formData = new FormData();
     formData.append('media_file', data.media_file);
     if (data.student_image) formData.append('student_image', data.student_image);
-    Object.entries(data.payload).forEach(([k, v]) => formData.append(k, String(v)));
+    
+    // Append testimonial fields directly to form data
+    formData.append('title', data.payload.title);
+    formData.append('description', data.payload.description);
+    formData.append('student_name', data.payload.student_name);
+    formData.append('course', data.payload.course);
+    formData.append('rating', String(data.payload.rating || 5));
+    formData.append('media_type', data.payload.media_type);
 
     const response = await fetch(`${API_BASE_URL}/testimonials`, {
       method: 'POST',
@@ -465,7 +545,18 @@ class ApiService {
   }, token: string): Promise<{ message: string; id: string }> {
     const formData = new FormData();
     formData.append('thumbnail', data.thumbnail);
-    Object.entries(data.payload).forEach(([k, v]) => formData.append(k, String(v)));
+    
+    // Append course fields directly to form data
+    formData.append('name', data.payload.name);
+    formData.append('title', data.payload.title);
+    formData.append('description', data.payload.description);
+    formData.append('category', data.payload.category);
+    formData.append('sub_category', data.payload.sub_category);
+    formData.append('start_date', data.payload.start_date);
+    formData.append('end_date', data.payload.end_date);
+    formData.append('duration', data.payload.duration);
+    formData.append('instructor', data.payload.instructor);
+    formData.append('price', String(data.payload.price));
 
     const response = await fetch(`${API_BASE_URL}/courses`, {
       method: 'POST',
@@ -513,7 +604,7 @@ class ApiService {
     payload: {
       class_name: string;
       course: string;
-      subject: string;
+      sub_category: string;
       module: string;
       title: string;
       description: string;
@@ -525,7 +616,17 @@ class ApiService {
   }, token: string): Promise<{ message: string; id: string }> {
     const formData = new FormData();
     formData.append('pdf_file', data.pdf_file);
-    Object.entries(data.payload).forEach(([k, v]) => formData.append(k, String(v)));
+    
+    // Append material fields directly to form data
+    formData.append('class_name', data.payload.class_name);
+    formData.append('course', data.payload.course);
+    formData.append('sub_category', data.payload.sub_category);
+    formData.append('module', data.payload.module);
+    formData.append('title', data.payload.title);
+    formData.append('description', data.payload.description);
+    formData.append('academic_year', data.payload.academic_year);
+    formData.append('time_period', String(data.payload.time_period));
+    formData.append('price', String(data.payload.price));
 
     const response = await fetch(`${API_BASE_URL}/materials`, {
       method: 'POST',

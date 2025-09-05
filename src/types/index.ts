@@ -93,7 +93,7 @@ export interface Material {
   _id: string;
   class_name: string;
   course: string;
-  subject: string;
+  sub_category: string;
   module: string;
   title: string;
   description: string;
@@ -114,6 +114,7 @@ export interface TestItem {
   _id: string;
   class_name: string;
   course: string;
+  sub_category?: string;
   subject: string;
   module: string;
   test_title: string;
@@ -122,8 +123,9 @@ export interface TestItem {
   total_marks: number;
   duration: number;
   difficulty_level: string;
-  time_period: number;
   pass_mark: number;
+  validity_days: number;
+  price: number;
   date_published: string;
   result_type: string;
   answer_key: boolean;
@@ -133,6 +135,24 @@ export interface TestItem {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export interface TestQuestion {
+  _id: string;
+  test_id: string;
+  question_number: number;
+  question: string;
+  options: Array<{
+    label: string;
+    text: string;
+  }>;
+  correct_answer: string;
+  explanation?: string;
+  marks: number;
+  difficulty_level: string;
+  tags: string[];
+  created_at: string;
+  updated_at?: string;
 }
 
 export interface NotificationItem {

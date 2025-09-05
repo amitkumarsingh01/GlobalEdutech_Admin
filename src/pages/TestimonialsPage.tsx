@@ -218,9 +218,37 @@ const TestimonialsPage: React.FC = () => {
                   isImage ? (
                     <img src={mediaUrl} alt={it.title} className="w-full h-52 object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
                   ) : (
-                    <video className="w-full h-52 object-cover" controls>
-                      <source src={mediaUrl || ''} />
-                    </video>
+                    <div className="relative w-full h-52 bg-gray-900 flex items-center justify-center">
+                      <video 
+                        className="w-full h-52 object-cover" 
+                        controls
+                        preload="metadata"
+                        onLoadedMetadata={(e) => {
+                          // Seek to 2 seconds to show a frame instead of black screen
+                          if (e.currentTarget.duration > 2) {
+                            e.currentTarget.currentTime = 2;
+                          } else if (e.currentTarget.duration > 0) {
+                            e.currentTarget.currentTime = e.currentTarget.duration / 2;
+                          }
+                        }}
+                        onError={(e) => {
+                          console.error('Video load error:', e);
+                        }}
+                      >
+                        <source src={mediaUrl || ''} type="video/mp4" />
+                        <source src={mediaUrl || ''} type="video/webm" />
+                        <source src={mediaUrl || ''} type="video/ogg" />
+                        Your browser does not support the video tag.
+                      </video>
+                      {/* Video play overlay */}
+                      <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-20 pointer-events-none">
+                        <div className="w-16 h-16 bg-white bg-opacity-80 rounded-full flex items-center justify-center">
+                          <svg className="w-8 h-8 text-gray-800 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z"/>
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
                   )
                 ) : (
                   <div className="text-gray-500">Media not available</div>
@@ -239,7 +267,7 @@ const TestimonialsPage: React.FC = () => {
                   <div className="bg-yellow-50 rounded-lg p-2"><span className="font-semibold text-yellow-700">Updated:</span> {new Date(it.updated_at).toLocaleString()}</div>
                 </div>
                 <div className="mt-4 flex items-center justify-end gap-2">
-                  <button onClick={() => openEdit(it)} className="px-4 py-2 rounded-lg border border-blue-900 text-blue-900 hover:bg-yellow-400 hover:border-yellow-400">Edit</button>
+                  {/* <button onClick={() => openEdit(it)} className="px-4 py-2 rounded-lg border border-blue-900 text-blue-900 hover:bg-yellow-400 hover:border-yellow-400">Edit</button> */}
                   <button onClick={() => onDelete(it._id)} className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700">Delete</button>
                 </div>
               </div>

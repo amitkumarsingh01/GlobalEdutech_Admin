@@ -8,6 +8,8 @@ const CoursePage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState<string>('');
+  const [filterCategory, setFilterCategory] = useState<string>('');
+  const [filterSubCategory, setFilterSubCategory] = useState<string>('');
 
   const [formOpen, setFormOpen] = useState<boolean>(false);
   const [editing, setEditing] = useState<Course | null>(null);
@@ -23,17 +25,76 @@ const CoursePage: React.FC = () => {
     instructor: '',
     price: 0,
   });
+  const [showSubCategories, setShowSubCategories] = useState<boolean>(false);
   const [thumbnail, setThumbnail] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState<boolean>(false);
 
+  // Category and Subcategory data
+  const courseCategories = {
+    'PUC': ['I PUC', 'II PUC'],
+    'UG Courses': ['B.Com', 'BBA', 'BCA', 'B.Sc'],
+    'PG Courses': ['M.Com', 'MBA', 'MCA', 'MFA', 'MTA', 'M.Ed'],
+    'UGC Exams': ['NET', 'KSET', 'NEET', 'JEE'],
+    'Professional Courses': ['CA (Chartered Accountant)', 'CS (Company Secretary)', 'CMA (Cost & Management Accountant)', 'ACCA (Association of Chartered Certified Accountants)'],
+    'Competitive Exams': ['KPSC (Karnataka Public Service Commission)', 'UPSC (Union Public Service Commission)', 'FDA (First Division Assistant)', 'SDA (Second Division Assistant)', 'Current Affairs', 'Banking Exams', 'Railway Exams', 'PDO (Panchayat Development Officer)', 'Others']
+  };
+
+  // Helper functions
+  const handleCategoryChange = (category: string) => {
+    setPayload({ ...payload, category, sub_category: '' });
+    setShowSubCategories(true);
+  };
+
+  const handleSubCategoryChange = (subCategory: string) => {
+    setPayload({ ...payload, sub_category: subCategory });
+  };
+
+  const formatDateForInput = (dateString: string) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toISOString().slice(0, 16); // Format: YYYY-MM-DDTHH:mm
+  };
+
+  const handleDateChange = (field: 'start_date' | 'end_date', value: string) => {
+    const isoDate = value ? new Date(value).toISOString() : '';
+    setPayload({ ...payload, [field]: isoDate });
+  };
+
+  const handleFilterCategoryChange = (category: string) => {
+    setFilterCategory(category);
+    setFilterSubCategory(''); // Reset subcategory when category changes
+  };
+
+  const clearFilters = () => {
+    setQuery('');
+    setFilterCategory('');
+    setFilterSubCategory('');
+  };
+
   const filtered = useMemo(() => {
+    let filteredItems = items;
+    
+    // Text search filter
     const q = query.trim().toLowerCase();
-    if (!q) return items;
-    return items.filter((it) =>
-      [it.title, it.name, it.category, it.sub_category, it.instructor]
-        .some((v) => v.toLowerCase().includes(q))
-    );
-  }, [items, query]);
+    if (q) {
+      filteredItems = filteredItems.filter((it) =>
+        [it.title, it.name, it.category, it.sub_category, it.instructor]
+          .some((v) => v.toLowerCase().includes(q))
+      );
+    }
+    
+    // Category filter
+    if (filterCategory) {
+      filteredItems = filteredItems.filter((it) => it.category === filterCategory);
+    }
+    
+    // Subcategory filter
+    if (filterSubCategory) {
+      filteredItems = filteredItems.filter((it) => it.sub_category === filterSubCategory);
+    }
+    
+    return filteredItems;
+  }, [items, query, filterCategory, filterSubCategory]);
 
   const loadAll = async (): Promise<void> => {
     setLoading(true);
@@ -70,6 +131,7 @@ const CoursePage: React.FC = () => {
       start_date: '', end_date: '', duration: '', instructor: '', price: 0,
     });
     setThumbnail(null);
+    setShowSubCategories(false);
   };
 
   const openCreate = (): void => { resetForm(); setFormOpen(true); };
@@ -88,6 +150,7 @@ const CoursePage: React.FC = () => {
       price: it.price,
     });
     setThumbnail(null);
+    setShowSubCategories(!!it.category);
     setFormOpen(true);
   };
 
@@ -98,6 +161,12 @@ const CoursePage: React.FC = () => {
     setError(null);
     try {
       if (editing) {
+        // For editing, only update the course data (thumbnail updates not supported yet)
+        if (thumbnail) {
+          setError('Thumbnail updates are not supported in edit mode. Please delete and recreate the course to change the thumbnail.');
+          setSubmitting(false);
+          return;
+        }
         await ApiService.updateCourse(editing._id, payload as any, token);
       } else {
         if (!thumbnail) { setError('Thumbnail is required'); setSubmitting(false); return; }
@@ -130,14 +199,55 @@ const CoursePage: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-xl p-6 shadow">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
           <div>
             <h2 className="text-2xl font-bold text-gray-900">Courses</h2>
-            <p className="text-gray-600">Total: {items.length}</p>
+            <p className="text-gray-600">Total: {items.length} | Showing: {filtered.length}</p>
           </div>
           <div className="flex gap-2 w-full md:w-auto">
             <input className="border rounded-lg px-3 py-2 w-full md:w-80" placeholder="Search courses" value={query} onChange={(e) => setQuery(e.target.value)} />
             <button onClick={openCreate} className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Add</button>
+          </div>
+        </div>
+        
+        {/* Filters */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Filter by Category</label>
+            <select 
+              className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+              value={filterCategory} 
+              onChange={(e) => handleFilterCategoryChange(e.target.value)}
+            >
+              <option value="">All Categories</option>
+              {Object.keys(courseCategories).map((category) => (
+                <option key={category} value={category}>{category}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-1">Filter by Sub Category</label>
+            <select 
+              className={`border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                !filterCategory ? 'bg-gray-100 text-gray-500' : ''
+              }`}
+              value={filterSubCategory} 
+              onChange={(e) => setFilterSubCategory(e.target.value)}
+              disabled={!filterCategory}
+            >
+              <option value="">All Sub Categories</option>
+              {filterCategory && courseCategories[filterCategory as keyof typeof courseCategories]?.map((subCategory) => (
+                <option key={subCategory} value={subCategory}>{subCategory}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-end">
+            <button 
+              onClick={clearFilters}
+              className="w-full bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors"
+            >
+              Clear Filters
+            </button>
           </div>
         </div>
       </div>
@@ -165,19 +275,61 @@ const CoursePage: React.FC = () => {
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Category</label>
-                  <input className="border rounded-lg px-3 py-2 w-full" placeholder="e.g., PUC" value={payload.category} onChange={(e) => setPayload({ ...payload, category: e.target.value })} required />
+                  <select 
+                    className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                    value={payload.category} 
+                    onChange={(e) => handleCategoryChange(e.target.value)} 
+                    required
+                  >
+                    <option value="">Select Category</option>
+                    {Object.keys(courseCategories).map((category) => (
+                      <option key={category} value={category}>{category}</option>
+                    ))}
+                  </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Sub Category</label>
-                  <input className="border rounded-lg px-3 py-2 w-full" placeholder="e.g., I PUC" value={payload.sub_category} onChange={(e) => setPayload({ ...payload, sub_category: e.target.value })} required />
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    Sub Category
+                    {payload.category && (
+                      <span className="text-xs text-gray-500 ml-2">
+                        ({courseCategories[payload.category as keyof typeof courseCategories]?.length} options)
+                      </span>
+                    )}
+                  </label>
+                  <select 
+                    className={`border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                      !showSubCategories ? 'bg-gray-100 text-gray-500' : ''
+                    }`}
+                    value={payload.sub_category} 
+                    onChange={(e) => handleSubCategoryChange(e.target.value)} 
+                    required
+                    disabled={!showSubCategories}
+                  >
+                    <option value="">{showSubCategories ? 'Select Sub Category' : 'Select a category first'}</option>
+                    {payload.category && courseCategories[payload.category as keyof typeof courseCategories]?.map((subCategory) => (
+                      <option key={subCategory} value={subCategory}>{subCategory}</option>
+                    ))}
+                  </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Start Date (ISO)</label>
-                  <input className="border rounded-lg px-3 py-2 w-full" placeholder="YYYY-MM-DDTHH:mm:ss" value={payload.start_date} onChange={(e) => setPayload({ ...payload, start_date: e.target.value })} required />
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Start Date & Time</label>
+                  <input 
+                    type="datetime-local"
+                    className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                    value={formatDateForInput(payload.start_date)} 
+                    onChange={(e) => handleDateChange('start_date', e.target.value)} 
+                    required 
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">End Date (ISO)</label>
-                  <input className="border rounded-lg px-3 py-2 w-full" placeholder="YYYY-MM-DDTHH:mm:ss" value={payload.end_date} onChange={(e) => setPayload({ ...payload, end_date: e.target.value })} required />
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">End Date & Time</label>
+                  <input 
+                    type="datetime-local"
+                    className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                    value={formatDateForInput(payload.end_date)} 
+                    onChange={(e) => handleDateChange('end_date', e.target.value)} 
+                    required 
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Duration</label>
@@ -191,15 +343,35 @@ const CoursePage: React.FC = () => {
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Price</label>
                   <input className="border rounded-lg px-3 py-2 w-full" placeholder="0" type="number" min={0} step="0.01" value={payload.price} onChange={(e) => setPayload({ ...payload, price: Number(e.target.value) })} required />
                 </div>
-                <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">Thumbnail</label>
-                    <input className="border rounded-lg px-3 py-2 w-full" type="file" accept="image/*" onChange={(e) => setThumbnail(e.target.files?.[0] || null)} required={!editing} />
-                  </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    Thumbnail {editing && <span className="text-sm text-orange-600">(Cannot be changed in edit mode)</span>}
+                  </label>
+                  <input 
+                    className={`border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                      editing ? 'bg-gray-100 cursor-not-allowed' : ''
+                    }`}
+                    type="file" 
+                    accept="image/*" 
+                    onChange={(e) => setThumbnail(e.target.files?.[0] || null)} 
+                    required={!editing}
+                    disabled={!!editing}
+                  />
                   {editing && (
-                    <div>
+                    <div className="mt-2">
                       <label className="block text-sm font-semibold text-gray-700 mb-1">Current Thumbnail</label>
-                      <img src={ApiService.fileUrl((editing as Course).thumbnail_image) || ''} alt={(editing as Course).title} className="w-36 h-20 object-cover rounded-md border" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+                      <div className="flex items-center gap-4">
+                        <img 
+                          src={ApiService.fileUrl((editing as Course).thumbnail_image) || ''} 
+                          alt={(editing as Course).title} 
+                          className="w-36 h-20 object-cover rounded-md border" 
+                          onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} 
+                        />
+                        <div className="text-sm text-gray-600">
+                          <p className="text-orange-600 font-medium">Thumbnail cannot be changed in edit mode.</p>
+                          <p className="text-gray-500">To change thumbnail, delete and recreate the course.</p>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
