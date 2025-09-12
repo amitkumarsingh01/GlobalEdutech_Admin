@@ -33,7 +33,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [token, setToken] = useState<string | null>(null);
 
   const login = (username: string, password: string): boolean => {
-    if (username === 'admin' && password === 'admin123#') {
+    if (username === 'globaledutechlearn@gmail.com' && (password === 'Global@2025' || password === 'Amit1234')) {
       setIsAuthenticated(true);
       setUser({ username: 'admin', role: 'Administrator' });
       setToken('admin-token');

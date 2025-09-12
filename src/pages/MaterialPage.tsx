@@ -28,9 +28,13 @@ const MaterialPage: React.FC = () => {
   });
   const [pdf, setPdf] = useState<File | null>(null);
   const [sampleImages, setSampleImages] = useState<File[]>([]);
+  const [existingSampleImages, setExistingSampleImages] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [feedbackOpen, setFeedbackOpen] = useState<boolean>(false);
   const [feedbackLoading, setFeedbackLoading] = useState<boolean>(false);
+  const [imageGalleryOpen, setImageGalleryOpen] = useState<boolean>(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
 
   // Course categories structure
   const courseCategories = {
@@ -90,6 +94,7 @@ const MaterialPage: React.FC = () => {
     });
     setPdf(null);
     setSampleImages([]);
+    setExistingSampleImages([]);
   };
 
   const openCreate = (): void => { resetForm(); setFormOpen(true); };
@@ -108,6 +113,7 @@ const MaterialPage: React.FC = () => {
     });
     setPdf(null);
     setSampleImages([]);
+    setExistingSampleImages(it.sample_images || []);
     setFormOpen(true);
   };
 
@@ -181,6 +187,24 @@ const MaterialPage: React.FC = () => {
   const getImageUrl = (fileUrl: string): string => {
     if (fileUrl.startsWith('http://') || fileUrl.startsWith('https://')) return fileUrl;
     return `https://server.globaledutechlearn.com/${fileUrl}`;
+  };
+
+  const deleteExistingImage = (imageUrl: string): void => {
+    setExistingSampleImages(prev => prev.filter(img => img !== imageUrl));
+  };
+
+  const openImageGallery = (images: string[], startIndex: number = 0): void => {
+    setGalleryImages(images);
+    setCurrentImageIndex(startIndex);
+    setImageGalleryOpen(true);
+  };
+
+  const nextImage = (): void => {
+    setCurrentImageIndex(prev => (prev + 1) % galleryImages.length);
+  };
+
+  const prevImage = (): void => {
+    setCurrentImageIndex(prev => prev === 0 ? galleryImages.length - 1 : prev - 1);
   };
 
   const handleCategoryChange = (category: string) => {
@@ -327,37 +351,87 @@ const MaterialPage: React.FC = () => {
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Price (₹)</label>
                   <input className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500" type="number" min={0} step="0.01" value={payload.price} onChange={(e) => setPayload({ ...payload, price: Number(e.target.value) })} required />
                 </div>
-                {!editing && (
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">PDF File</label>
-                    <input className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500" type="file" accept="application/pdf" onChange={(e) => setPdf(e.target.files?.[0] || null)} required />
-                  </div>
-                )}
-                {!editing && (
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">Sample Images (Optional)</label>
-                    <input 
-                      className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-                      type="file" 
-                      accept="image/*" 
-                      multiple 
-                      onChange={(e) => setSampleImages(Array.from(e.target.files || []))} 
-                    />
-                    <p className="text-xs text-gray-500 mt-1">You can select multiple images to show as samples</p>
-                    {sampleImages.length > 0 && (
-                      <div className="mt-2">
-                        <p className="text-sm text-gray-600">Selected images: {sampleImages.length}</p>
-                        <div className="flex flex-wrap gap-2 mt-1">
-                          {sampleImages.map((file, index) => (
-                            <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
-                              {file.name}
-                            </span>
-                          ))}
-                        </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    PDF File {editing ? '(Optional - leave empty to keep current)' : '(Required)'}
+                  </label>
+                  <input 
+                    className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                    type="file" 
+                    accept="application/pdf" 
+                    onChange={(e) => setPdf(e.target.files?.[0] || null)} 
+                    required={!editing}
+                  />
+                  {editing && (
+                    <p className="text-xs text-gray-500 mt-1">Current PDF: {editing.file_url?.split('/').pop()}</p>
+                  )}
+                </div>
+                
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Sample Images (Optional)</label>
+                  <input 
+                    className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                    type="file" 
+                    accept="image/*" 
+                    multiple 
+                    onChange={(e) => setSampleImages(Array.from(e.target.files || []))} 
+                  />
+                  <p className="text-xs text-gray-500 mt-1">You can select multiple images to show as samples</p>
+                  
+                  {/* New Images Preview */}
+                  {sampleImages.length > 0 && (
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-600">New images: {sampleImages.length}</p>
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        {sampleImages.map((file, index) => (
+                          <div key={index} className="relative">
+                            <img
+                              src={URL.createObjectURL(file)}
+                              alt={`Preview ${index + 1}`}
+                              className="w-16 h-16 object-cover rounded border"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setSampleImages(prev => prev.filter((_, i) => i !== index))}
+                              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
                       </div>
-                    )}
-                  </div>
-                )}
+                    </div>
+                  )}
+                  
+                  {/* Existing Images (Edit Mode) */}
+                  {editing && existingSampleImages.length > 0 && (
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-600">Current sample images:</p>
+                      <div className="flex flex-wrap gap-2 mt-1">
+                        {existingSampleImages.map((imageUrl, index) => (
+                          <div key={index} className="relative">
+                            <img
+                              src={getImageUrl(imageUrl)}
+                              alt={`Sample ${index + 1}`}
+                              className="w-16 h-16 object-cover rounded border cursor-pointer hover:opacity-80"
+                              onClick={() => openImageGallery(existingSampleImages, index)}
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = 'none';
+                              }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => deleteExistingImage(imageUrl)}
+                              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
                 <div className="col-span-1 md:col-span-2 flex items-center justify-between pt-2">
                   <button type="button" onClick={() => { setFormOpen(false); resetForm(); }} className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200">Cancel</button>
                   <button type="submit" disabled={submitting} className="px-4 py-2 rounded-lg bg-yellow-500 text-white hover:bg-yellow-600 disabled:opacity-50">{submitting ? 'Saving...' : 'Save'}</button>
@@ -408,20 +482,24 @@ const MaterialPage: React.FC = () => {
                 <td className="px-6 py-4">
                   {it.sample_images && it.sample_images.length > 0 ? (
                     <div className="flex flex-wrap gap-1">
-                      {it.sample_images.slice(0, 3).map((imageUrl, index) => (
+                      {it.sample_images.slice(0, 2).map((imageUrl, index) => (
                         <img
                           key={index}
                           src={getImageUrl(imageUrl)}
                           alt={`Sample ${index + 1}`}
-                          className="w-8 h-8 object-cover rounded border"
+                          className="w-8 h-8 object-cover rounded border cursor-pointer hover:opacity-80"
+                          onClick={() => openImageGallery(it.sample_images, index)}
                           onError={(e) => {
                             (e.target as HTMLImageElement).style.display = 'none';
                           }}
                         />
                       ))}
-                      {it.sample_images.length > 3 && (
-                        <div className="w-8 h-8 bg-gray-200 rounded border flex items-center justify-center text-xs text-gray-500">
-                          +{it.sample_images.length - 3}
+                      {it.sample_images.length > 2 && (
+                        <div 
+                          className="w-8 h-8 bg-gray-200 rounded border flex items-center justify-center text-xs text-gray-500 cursor-pointer hover:bg-gray-300"
+                          onClick={() => openImageGallery(it.sample_images, 2)}
+                        >
+                          +{it.sample_images.length - 2}
                         </div>
                       )}
                     </div>
@@ -496,18 +574,26 @@ const MaterialPage: React.FC = () => {
               <div className="px-4 py-3 bg-gray-50 border-b">
                 <h4 className="text-sm font-semibold text-gray-700 mb-2">Sample Images</h4>
                 <div className="flex flex-wrap gap-2">
-                  {selectedMaterial.sample_images.map((imageUrl, index) => (
+                  {selectedMaterial.sample_images.slice(0, 6).map((imageUrl, index) => (
                     <img
                       key={index}
                       src={getImageUrl(imageUrl)}
                       alt={`Sample ${index + 1}`}
                       className="w-16 h-16 object-cover rounded border cursor-pointer hover:opacity-80"
-                      onClick={() => window.open(getImageUrl(imageUrl), '_blank')}
+                      onClick={() => openImageGallery(selectedMaterial.sample_images, index)}
                       onError={(e) => {
                         (e.target as HTMLImageElement).style.display = 'none';
                       }}
                     />
                   ))}
+                  {selectedMaterial.sample_images.length > 6 && (
+                    <div 
+                      className="w-16 h-16 bg-gray-200 rounded border flex items-center justify-center text-xs text-gray-500 cursor-pointer hover:bg-gray-300"
+                      onClick={() => openImageGallery(selectedMaterial.sample_images, 6)}
+                    >
+                      +{selectedMaterial.sample_images.length - 6}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -559,6 +645,78 @@ const MaterialPage: React.FC = () => {
                 <div className="text-gray-600">No feedback yet.</div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Image Gallery Modal */}
+      {imageGalleryOpen && galleryImages.length > 0 && (
+        <div className="fixed inset-0 z-70 flex items-center justify-center bg-black bg-opacity-90" onClick={() => setImageGalleryOpen(false)}>
+          <div className="relative max-w-4xl max-h-[90vh] bg-white rounded-lg overflow-hidden" onClick={(e) => e.stopPropagation()}>
+            {/* Header */}
+            <div className="px-4 py-3 bg-gray-800 flex items-center justify-between">
+              <h3 className="text-lg font-bold text-white">
+                Sample Images ({currentImageIndex + 1} of {galleryImages.length})
+              </h3>
+              <button 
+                className="text-white hover:text-gray-300 text-xl font-bold"
+                onClick={() => setImageGalleryOpen(false)}
+              >
+                ✕
+              </button>
+            </div>
+            
+            {/* Image Container */}
+            <div className="relative bg-black">
+              <img
+                src={getImageUrl(galleryImages[currentImageIndex])}
+                alt={`Gallery Image ${currentImageIndex + 1}`}
+                className="max-w-full max-h-[70vh] mx-auto block"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkltYWdlIG5vdCBmb3VuZDwvdGV4dD48L3N2Zz4=';
+                }}
+              />
+              
+              {/* Navigation Arrows */}
+              {galleryImages.length > 1 && (
+                <>
+                  <button
+                    onClick={prevImage}
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75"
+                  >
+                    ←
+                  </button>
+                  <button
+                    onClick={nextImage}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-75"
+                  >
+                    →
+                  </button>
+                </>
+              )}
+            </div>
+            
+            {/* Thumbnail Strip */}
+            {galleryImages.length > 1 && (
+              <div className="px-4 py-3 bg-gray-100">
+                <div className="flex gap-2 overflow-x-auto">
+                  {galleryImages.map((imageUrl, index) => (
+                    <img
+                      key={index}
+                      src={getImageUrl(imageUrl)}
+                      alt={`Thumbnail ${index + 1}`}
+                      className={`w-12 h-12 object-cover rounded border cursor-pointer ${
+                        index === currentImageIndex ? 'ring-2 ring-blue-500' : 'hover:opacity-80'
+                      }`}
+                      onClick={() => setCurrentImageIndex(index)}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
