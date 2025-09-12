@@ -102,6 +102,7 @@ export interface Material {
   price: number;
   file_url: string;
   file_size?: number;
+  sample_images: string[];
   download_count: number;
   tags: string[];
   feedback: any[];

@@ -649,9 +649,17 @@ class ApiService {
       price: number;
     };
     pdf_file: File;
+    sample_images?: File[];
   }, token: string): Promise<{ message: string; id: string }> {
     const formData = new FormData();
     formData.append('pdf_file', data.pdf_file);
+    
+    // Append sample images if provided
+    if (data.sample_images && data.sample_images.length > 0) {
+      data.sample_images.forEach((image, index) => {
+        formData.append('sample_images', image);
+      });
+    }
     
     // Append material fields directly to form data
     formData.append('class_name', data.payload.class_name);

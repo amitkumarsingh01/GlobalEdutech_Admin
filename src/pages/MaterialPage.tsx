@@ -27,6 +27,7 @@ const MaterialPage: React.FC = () => {
     price: 0,
   });
   const [pdf, setPdf] = useState<File | null>(null);
+  const [sampleImages, setSampleImages] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [feedbackOpen, setFeedbackOpen] = useState<boolean>(false);
   const [feedbackLoading, setFeedbackLoading] = useState<boolean>(false);
@@ -88,6 +89,7 @@ const MaterialPage: React.FC = () => {
       class_name: '', course: '', sub_category: '', module: '', title: '', description: '', academic_year: '', time_period: 0, price: 0,
     });
     setPdf(null);
+    setSampleImages([]);
   };
 
   const openCreate = (): void => { resetForm(); setFormOpen(true); };
@@ -105,6 +107,7 @@ const MaterialPage: React.FC = () => {
       price: it.price,
     });
     setPdf(null);
+    setSampleImages([]);
     setFormOpen(true);
   };
 
@@ -118,7 +121,7 @@ const MaterialPage: React.FC = () => {
         await ApiService.updateMaterial(editing._id, payload as any, token);
       } else {
         if (!pdf) { setError('PDF is required'); setSubmitting(false); return; }
-        await ApiService.createMaterial({ payload, pdf_file: pdf }, token);
+        await ApiService.createMaterial({ payload, pdf_file: pdf, sample_images: sampleImages }, token);
       }
       setFormOpen(false);
       resetForm();
@@ -171,6 +174,11 @@ const MaterialPage: React.FC = () => {
   };
 
   const getPdfUrl = (fileUrl: string): string => {
+    if (fileUrl.startsWith('http://') || fileUrl.startsWith('https://')) return fileUrl;
+    return `https://server.globaledutechlearn.com/${fileUrl}`;
+  };
+
+  const getImageUrl = (fileUrl: string): string => {
     if (fileUrl.startsWith('http://') || fileUrl.startsWith('https://')) return fileUrl;
     return `https://server.globaledutechlearn.com/${fileUrl}`;
   };
@@ -325,6 +333,31 @@ const MaterialPage: React.FC = () => {
                     <input className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500" type="file" accept="application/pdf" onChange={(e) => setPdf(e.target.files?.[0] || null)} required />
                   </div>
                 )}
+                {!editing && (
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-semibold text-gray-700 mb-1">Sample Images (Optional)</label>
+                    <input 
+                      className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                      type="file" 
+                      accept="image/*" 
+                      multiple 
+                      onChange={(e) => setSampleImages(Array.from(e.target.files || []))} 
+                    />
+                    <p className="text-xs text-gray-500 mt-1">You can select multiple images to show as samples</p>
+                    {sampleImages.length > 0 && (
+                      <div className="mt-2">
+                        <p className="text-sm text-gray-600">Selected images: {sampleImages.length}</p>
+                        <div className="flex flex-wrap gap-2 mt-1">
+                          {sampleImages.map((file, index) => (
+                            <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
+                              {file.name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
                 <div className="col-span-1 md:col-span-2 flex items-center justify-between pt-2">
                   <button type="button" onClick={() => { setFormOpen(false); resetForm(); }} className="px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200">Cancel</button>
                   <button type="submit" disabled={submitting} className="px-4 py-2 rounded-lg bg-yellow-500 text-white hover:bg-yellow-600 disabled:opacity-50">{submitting ? 'Saving...' : 'Save'}</button>
@@ -343,6 +376,7 @@ const MaterialPage: React.FC = () => {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Course/Sub-Category</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Year/Module</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">File Info</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sample Images</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
               {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Downloads</th> */}
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Updated</th>
@@ -370,6 +404,30 @@ const MaterialPage: React.FC = () => {
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-900">{formatFileSize(it.file_size || 0)}</div>
                   <div className="text-xs text-gray-500">{it.time_period} days</div>
+                </td>
+                <td className="px-6 py-4">
+                  {it.sample_images && it.sample_images.length > 0 ? (
+                    <div className="flex flex-wrap gap-1">
+                      {it.sample_images.slice(0, 3).map((imageUrl, index) => (
+                        <img
+                          key={index}
+                          src={getImageUrl(imageUrl)}
+                          alt={`Sample ${index + 1}`}
+                          className="w-8 h-8 object-cover rounded border"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      ))}
+                      {it.sample_images.length > 3 && (
+                        <div className="w-8 h-8 bg-gray-200 rounded border flex items-center justify-center text-xs text-gray-500">
+                          +{it.sample_images.length - 3}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="text-xs text-gray-400">No samples</span>
+                  )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span className="text-sm font-medium text-green-600">₹{it.price}</span>
@@ -432,6 +490,27 @@ const MaterialPage: React.FC = () => {
                 </button>
               </div>
             </div>
+            
+            {/* Sample Images Section */}
+            {selectedMaterial.sample_images && selectedMaterial.sample_images.length > 0 && (
+              <div className="px-4 py-3 bg-gray-50 border-b">
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">Sample Images</h4>
+                <div className="flex flex-wrap gap-2">
+                  {selectedMaterial.sample_images.map((imageUrl, index) => (
+                    <img
+                      key={index}
+                      src={getImageUrl(imageUrl)}
+                      alt={`Sample ${index + 1}`}
+                      className="w-16 h-16 object-cover rounded border cursor-pointer hover:opacity-80"
+                      onClick={() => window.open(getImageUrl(imageUrl), '_blank')}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
             
             {/* PDF Content */}
             <div className="flex-1 bg-gray-100">
