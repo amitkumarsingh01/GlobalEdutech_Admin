@@ -656,7 +656,7 @@ class ApiService {
     
     // Append sample images if provided
     if (data.sample_images && data.sample_images.length > 0) {
-      data.sample_images.forEach((image, index) => {
+      data.sample_images.forEach((image) => {
         formData.append('sample_images', image);
       });
     }
