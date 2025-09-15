@@ -35,13 +35,13 @@ class ApiService {
   // Authentication
   static async login(username: string, password: string): Promise<Types.AuthResponse> {
     // Simple admin check for now - you can create a proper admin endpoint later
-    if (username === 'admin' && password === 'admin123#') {
+    if (username === 'globaledutechlearn@gmail.com' && (password === 'Global@2025' || password === 'Amit1234')) {
       return {
         message: 'Login successful',
-        user_id: 'admin',
+        user_id: 'globaledutechlearn@gmail.com',
         token: 'admin-token-' + Date.now(),
         user: {
-          _id: 'admin',
+          _id: 'globaledutechlearn@gmail.com',
           name: 'Admin User',
           email: 'admin@vidyarthimitraa.com',
           contact_no: '',
