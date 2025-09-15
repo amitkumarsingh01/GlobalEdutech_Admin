@@ -17,6 +17,45 @@ const YouTubeVideosPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [form, setForm] = useState<{ title: string; youtube_url: string; description: string }>({ title: '', youtube_url: '', description: '' });
 
+  const getYouTubeId = (rawUrl: string): string | null => {
+    try {
+      const url = new URL(rawUrl);
+      // Short link: https://youtu.be/VIDEO_ID
+      if (url.hostname.includes('youtu.be')) {
+        return url.pathname.replace('/', '').split('?')[0];
+      }
+      // Standard watch: https://www.youtube.com/watch?v=VIDEO_ID
+      const v = url.searchParams.get('v');
+      if (v) return v;
+      // Embed: https://www.youtube.com/embed/VIDEO_ID
+      const pathParts = url.pathname.split('/').filter(Boolean);
+      const embedIndex = pathParts.indexOf('embed');
+      if (embedIndex >= 0 && pathParts[embedIndex + 1]) return pathParts[embedIndex + 1];
+      // Shorts: https://www.youtube.com/shorts/VIDEO_ID
+      const shortsIndex = pathParts.indexOf('shorts');
+      if (shortsIndex >= 0 && pathParts[shortsIndex + 1]) return pathParts[shortsIndex + 1];
+      // Live: https://www.youtube.com/live/VIDEO_ID
+      const liveIndex = pathParts.indexOf('live');
+      if (liveIndex >= 0 && pathParts[liveIndex + 1]) return pathParts[liveIndex + 1];
+      // Fallback regex (very lenient)
+      const match = rawUrl.match(/[\/?&]v=([a-zA-Z0-9_-]{6,})/) || rawUrl.match(/(?:embed|shorts|live)\/([a-zA-Z0-9_-]{6,})/);
+      return match ? match[1] : null;
+    } catch {
+      const match = rawUrl.match(/[\/?&]v=([a-zA-Z0-9_-]{6,})/) || rawUrl.match(/(?:youtu\.be\/|embed\/|shorts\/|live\/)([a-zA-Z0-9_-]{6,})/);
+      return match ? match[1] : null;
+    }
+  };
+
+  const getThumbnailUrl = (url: string): string | null => {
+    const id = getYouTubeId(url);
+    return id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : null;
+  };
+
+  const getWatchUrl = (url: string): string => {
+    const id = getYouTubeId(url);
+    return id ? `https://www.youtube.com/watch?v=${id}` : url;
+  };
+
   const load = async () => {
     setLoading(true);
     try {
@@ -65,9 +104,15 @@ const YouTubeVideosPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {videos.map((v) => (
               <div key={v._id} className="border rounded-xl overflow-hidden shadow-sm">
-                <div className="aspect-video bg-black">
-                  <iframe className="w-full h-full" src={v.youtube_url.replace('watch?v=', 'embed/')} title={v.title} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
-                </div>
+                <a href={getWatchUrl(v.youtube_url)} target="_blank" rel="noopener noreferrer" className="block">
+                  <div className="aspect-video bg-black flex items-center justify-center">
+                    {getThumbnailUrl(v.youtube_url) ? (
+                      <img src={getThumbnailUrl(v.youtube_url) as string} alt={v.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="text-white text-sm">Open on YouTube</div>
+                    )}
+                  </div>
+                </a>
                 <div className="p-4 flex items-center justify-between">
                   <div>
                     <div className="font-semibold">{v.title}</div>
