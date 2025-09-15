@@ -26,8 +26,7 @@ const CurrentAffairsPage: React.FC = () => {
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [newTag, setNewTag] = useState<string>('');
 
-  // Filter options
-  const categories = ['Politics', 'Economy', 'Science & Technology', 'Sports', 'International', 'Environment', 'Education', 'Health', 'Entertainment', 'General'];
+  // Category will be free-text; no fixed categories list
   // const statusOptions = ['active', 'inactive'];
   // const featuredOptions = ['featured', 'not-featured'];
 
@@ -191,16 +190,12 @@ const CurrentAffairsPage: React.FC = () => {
           <div className="flex flex-col md:flex-row gap-4 flex-1">
             <div className="flex flex-col md:flex-row gap-2">
               <label className="text-sm font-semibold text-gray-700 whitespace-nowrap">Filter by Category:</label>
-              <select 
-                className="border rounded-lg px-3 py-2 min-w-[180px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-                value={filterCategory} 
+              <input
+                className="border rounded-lg px-3 py-2 min-w-[180px] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Type category"
+                value={filterCategory}
                 onChange={(e) => setFilterCategory(e.target.value)}
-              >
-                <option value="">All Categories</option>
-                {categories.map((category) => (
-                  <option key={category} value={category}>{category}</option>
-                ))}
-              </select>
+              />
             </div>
             <div className="flex flex-col md:flex-row gap-2">
               <label className="text-sm font-semibold text-gray-700 whitespace-nowrap">Filter by Status:</label>
@@ -274,17 +269,13 @@ const CurrentAffairsPage: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1">Category</label>
-                    <select 
-                      className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-                      value={payload.category} 
+                    <input
+                      className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="Type category"
+                      value={payload.category}
                       onChange={(e) => setPayload({ ...payload, category: e.target.value })}
                       required
-                    >
-                      <option value="">Select Category</option>
-                      {categories.map((category) => (
-                        <option key={category} value={category}>{category}</option>
-                      ))}
-                    </select>
+                    />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1">Publish Date</label>

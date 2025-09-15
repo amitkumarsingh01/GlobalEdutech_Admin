@@ -563,6 +563,38 @@ class ApiService {
     return this.handleResponse(response);
   }
 
+  // ========== YouTube Videos ==========
+  static async getYouTubeVideos(): Promise<{ videos: Array<{ _id: string; title: string; youtube_url: string; description?: string; is_active: boolean; created_at: string; updated_at: string }> }> {
+    const response = await fetch(`${API_BASE_URL}/youtube`, { method: 'GET', headers: this.getAuthHeaders() });
+    return this.handleResponse(response);
+  }
+  static async createYouTubeVideo(data: { title: string; youtube_url: string; description?: string }, token: string): Promise<{ message: string; id: string }> {
+    const response = await fetch(`${API_BASE_URL}/youtube`, { method: 'POST', headers: this.getAuthHeaders(token), body: JSON.stringify(data) });
+    return this.handleResponse(response);
+  }
+  static async deleteYouTubeVideo(id: string, token: string): Promise<{ message: string }> {
+    const response = await fetch(`${API_BASE_URL}/youtube/${id}`, { method: 'DELETE', headers: this.getAuthHeaders(token) });
+    return this.handleResponse(response);
+  }
+
+  // ========== Text Slider ==========
+  static async getSliderTexts(): Promise<{ items: Array<{ _id: string; text: string; is_active: boolean; created_at: string; updated_at: string }> }> {
+    const response = await fetch(`${API_BASE_URL}/text-slider`, { method: 'GET', headers: this.getAuthHeaders() });
+    return this.handleResponse(response);
+  }
+  static async createSliderText(data: { text: string }, token: string): Promise<{ message: string; id: string }> {
+    const response = await fetch(`${API_BASE_URL}/text-slider`, { method: 'POST', headers: this.getAuthHeaders(token), body: JSON.stringify(data) });
+    return this.handleResponse(response);
+  }
+  static async updateSliderText(id: string, data: { text?: string; is_active?: boolean }, token: string): Promise<{ message: string }> {
+    const response = await fetch(`${API_BASE_URL}/text-slider/${id}`, { method: 'PUT', headers: this.getAuthHeaders(token), body: JSON.stringify(data) });
+    return this.handleResponse(response);
+  }
+  static async deleteSliderText(id: string, token: string): Promise<{ message: string }> {
+    const response = await fetch(`${API_BASE_URL}/text-slider/${id}`, { method: 'DELETE', headers: this.getAuthHeaders(token) });
+    return this.handleResponse(response);
+  }
+
   // ========== Courses CRUD (thumbnail multipart on create) ==========
   static async createCourse(data: {
     payload: {

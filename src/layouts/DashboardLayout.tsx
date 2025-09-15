@@ -15,6 +15,8 @@ import TermsPage from '../pages/TermsPage';
 import ContactPage from '../pages/ContactPage';
 import MessagesPage from '../pages/MessagesPage';
 import CarouselPage from '../pages/Carousel';
+import YouTubeVideosPage from '../pages/YoutubeVideosPage';
+import TextSliderPage from '../pages/TextSliderPage';
 import { Menu } from 'lucide-react';
 
 const DashboardLayout: React.FC = () => {
@@ -37,6 +39,10 @@ const DashboardLayout: React.FC = () => {
         return <TestPage />;
       case 'material':
         return <MaterialPage />;
+      case 'youtube':
+        return <YouTubeVideosPage />;
+      case 'text_slider':
+        return <TextSliderPage />;
       case 'users':
         return <UsersPage />;
       case 'notifications':
@@ -68,6 +74,10 @@ const DashboardLayout: React.FC = () => {
         return 'Testimonials';
       case 'carousel':
         return 'Carousel';
+      case 'youtube':
+        return 'YouTube Videos';
+      case 'text_slider':
+        return 'Text Slider';
       case 'course':
         return 'Course Management';
       case 'test':

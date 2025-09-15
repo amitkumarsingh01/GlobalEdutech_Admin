@@ -1,9 +1,9 @@
 import React from 'react';
-import { BookOpen, FileText, Users, Building2, MessageSquareQuote, Bell, Newspaper, Phone, X, LogOut, Images } from 'lucide-react';
+import { BookOpen, FileText, Users, Building2, MessageSquareQuote, Bell, Newspaper, Phone, X, LogOut, Images, Youtube } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import logo from '../assets/logo.png';
 
-export type PageId = 'dashboard' | 'institutions' | 'testimonials' | 'carousel' | 'course' | 'test' | 'material' | 'users' | 'notifications' | 'current_affairs' | 'enrollments' | 'terms' | 'contact' | 'messages' | 'profile' | 'logout';
+export type PageId = 'dashboard' | 'institutions' | 'testimonials' | 'carousel' | 'course' | 'test' | 'material' | 'users' | 'notifications' | 'current_affairs' | 'enrollments' | 'terms' | 'contact' | 'messages' | 'profile' | 'youtube' | 'text_slider' | 'logout';
 
 type SidebarProps = {
   currentPage: PageId;
@@ -13,13 +13,15 @@ type SidebarProps = {
 };
 
 const Sidebar: React.FC<SidebarProps> = ({ currentPage, setCurrentPage, isMobileOpen, setIsMobileOpen }) => {
-  const { logout, user } = useAuth();
+  const { logout } = useAuth();
 
   const menuItems: Array<{ id: PageId; label: string; icon: React.ComponentType<{ className?: string }> }> = [
     { id: 'users', label: 'Users', icon: Users },
     { id: 'institutions', label: 'Institutions', icon: Building2 },
     { id: 'testimonials', label: 'Testimonials', icon: MessageSquareQuote },
     { id: 'carousel', label: 'Carousel', icon: Images },
+    { id: 'youtube', label: 'YouTube Videos', icon: Youtube },
+    { id: 'text_slider', label: 'Text Slider', icon: FileText },
     { id: 'course', label: 'Course', icon: BookOpen },
     { id: 'test', label: 'Test', icon: FileText },
     { id: 'material', label: 'Material', icon: FileText },
@@ -51,29 +53,19 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPage, setCurrentPage, isMobile
         fixed inset-y-0 left-0 z-50 w-72 bg-gradient-to-b from-blue-900 via-blue-800 to-blue-700 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0 shadow-2xl overflow-y-auto
         ${isMobileOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-        <div className="flex items-center justify-between h-20 px-6 bg-blue-900 border-b border-blue-700">
-          <div className="flex items-center gap-3">
-            <img src={logo} alt="Logo" className="w-10 h-10 rounded-full bg-white p-1" />
-            <h1 className="text-2xl font-bold text-yellow-400">Admin Panel</h1>
+        <div className="relative flex items-center justify-center px-6 py-10 bg-blue-900 border-b border-blue-700">
+          <div className="flex items-center">
+            <img src={logo} alt="Logo" className="w-24 h-24 rounded-full bg-white p-1" />
           </div>
           <button
             onClick={() => setIsMobileOpen(false)}
-            className="lg:hidden text-white hover:text-yellow-400 transition-colors p-2 rounded-lg hover:bg-blue-800"
+            className="lg:hidden absolute right-6 text-white hover:text-yellow-400 transition-colors p-2 rounded-lg hover:bg-blue-800"
           >
             <X className="h-6 w-6" />
           </button>
         </div>
 
         <div className="px-6 py-6">
-          <div className="flex items-center space-x-4 mb-8 p-4 bg-blue-800 bg-opacity-50 rounded-xl">
-            <div className="h-12 w-12 rounded-full overflow-hidden bg-white shadow-lg flex items-center justify-center">
-              <img src={logo} alt="Admin" className="h-12 w-12 object-contain p-1" />
-            </div>
-            <div>
-              <p className="text-white font-semibold text-lg">{user?.username}</p>
-              <p className="text-yellow-300 text-sm">{user?.role}</p>
-            </div>
-          </div>
 
           <nav className="space-y-2">
             {menuItems.map((item) => {
