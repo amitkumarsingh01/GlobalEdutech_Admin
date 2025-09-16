@@ -221,7 +221,7 @@ const CoursePage: React.FC = () => {
           .map((fb: any) => (typeof fb.user_id === 'string' ? fb.user_id : fb.user_id?._id || ''))
           .filter((id: string) => !!id)
       ));
-      const apiBase = (process.env.REACT_APP_API_URL || 'http://localhost:8000');
+      const apiBase = (process.env.REACT_APP_API_URL || 'https://server.globaledutechlearn.com');
       const userMap: Record<string, { name?: string; contact_no?: string }> = {};
       await Promise.all(
         uniqueUserIds.map(async (uid) => {
