@@ -151,7 +151,7 @@ const CoursePage: React.FC = () => {
       end_date: it.end_date,
       duration: it.duration,
       instructor: it.instructor,
-      price: it.price,
+      price: 0,
     });
     setThumbnail(null);
     setShowSubCategories(!!it.category);
@@ -171,10 +171,10 @@ const CoursePage: React.FC = () => {
           setSubmitting(false);
           return;
         }
-        await ApiService.updateCourse(editing._id, payload as any, token);
+        await ApiService.updateCourse(editing._id, { ...payload, price: 0 } as any, token);
       } else {
         if (!thumbnail) { setError('Thumbnail is required'); setSubmitting(false); return; }
-        await ApiService.createCourse({ payload, thumbnail }, token);
+        await ApiService.createCourse({ payload: { ...payload, price: 0 }, thumbnail }, token);
       }
       setFormOpen(false);
       resetForm();
@@ -398,10 +398,7 @@ const CoursePage: React.FC = () => {
                   <label className="block text-sm font-semibold text-gray-700 mb-1">Instructor</label>
                   <input className="border rounded-lg px-3 py-2 w-full" placeholder="Instructor name" value={payload.instructor} onChange={(e) => setPayload({ ...payload, instructor: e.target.value })} required />
                 </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Price</label>
-                  <input className="border rounded-lg px-3 py-2 w-full" placeholder="0" type="number" min={0} step="0.01" value={payload.price} onChange={(e) => setPayload({ ...payload, price: Number(e.target.value) })} required />
-                </div>
+                {/* Price removed - all courses are free */}
                 <div className="md:col-span-2">
                   <label className="block text-sm font-semibold text-gray-700 mb-1">
                     Thumbnail {editing && <span className="text-sm text-orange-600">(Cannot be changed in edit mode)</span>}
@@ -460,7 +457,7 @@ const CoursePage: React.FC = () => {
               <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
                 <div className="bg-blue-50 rounded-lg p-2"><span className="font-semibold text-blue-900">Category:</span> {it.category} / {it.sub_category}</div>
                 <div className="bg-yellow-50 rounded-lg p-2"><span className="font-semibold text-yellow-700">Instructor:</span> {it.instructor}</div>
-                <div className="bg-blue-50 rounded-lg p-2"><span className="font-semibold text-blue-900">Price:</span> ₹ {it.price}</div>
+                {/* Price removed from card */}
                 <div className="bg-yellow-50 rounded-lg p-2"><span className="font-semibold text-yellow-700">Updated:</span> {new Date(it.updated_at).toLocaleString()}</div>
               </div>
               <div className="mt-4 flex items-center justify-end gap-2">
