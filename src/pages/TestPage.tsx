@@ -28,12 +28,14 @@ const TestPage: React.FC = () => {
       { label: 'A', text: '' },
       { label: 'B', text: '' },
       { label: 'C', text: '' },
-      { label: 'D', text: '' }
+      { label: 'D', text: '' },
+      { label: 'E', text: '' }
     ],
     correct_answer: '',
     explanation: '',
     marks: 1
   });
+  const [questionImage, setQuestionImage] = useState<File | null>(null);
 
   // Filter options
   const difficultyLevels = ['Easy', 'Medium', 'Hard'];
@@ -133,13 +135,15 @@ const TestPage: React.FC = () => {
 
   const resetQuestionForm = () => {
     setEditingQuestion(null);
+    setQuestionImage(null);
     setQuestionPayload({
       question: '',
       options: [
         { label: 'A', text: '' },
         { label: 'B', text: '' },
         { label: 'C', text: '' },
-        { label: 'D', text: '' }
+        { label: 'D', text: '' },
+        { label: 'E', text: '' }
       ],
       correct_answer: '',
       explanation: '',
@@ -152,11 +156,18 @@ const TestPage: React.FC = () => {
       setEditingQuestion(question);
       setQuestionPayload({
         question: question.question,
-        options: question.options,
+        options: question.options || [
+          { label: 'A', text: '' },
+          { label: 'B', text: '' },
+          { label: 'C', text: '' },
+          { label: 'D', text: '' },
+          { label: 'E', text: '' }
+        ],
         correct_answer: question.correct_answer,
         explanation: question.explanation || '',
         marks: question.marks
       });
+      setQuestionImage(null); // Reset image for editing
     } else {
       resetQuestionForm();
     }
@@ -176,16 +187,44 @@ const TestPage: React.FC = () => {
     
     setSubmitting(true);
     try {
-      const questionData = {
-        test_id: selectedTest._id,
-        question_number: questions.length + 1,
-        ...questionPayload
-      };
+      const formData = new FormData();
+      formData.append('test_id', selectedTest._id);
+      formData.append('question_number', (questions.length + 1).toString());
+      formData.append('question', questionPayload.question);
+      formData.append('options', JSON.stringify(questionPayload.options));
+      formData.append('correct_answer', questionPayload.correct_answer);
+      formData.append('explanation', questionPayload.explanation || '');
+      formData.append('marks', questionPayload.marks.toString());
+      
+      if (questionImage) {
+        formData.append('image', questionImage);
+      }
 
       if (editingQuestion) {
-        await ApiService.updateQuestion(editingQuestion._id, questionPayload, token);
+        // For editing, we need to handle this differently since we're using FormData
+        const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/test-questions/${editingQuestion._id}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to update question');
+        }
       } else {
-        await ApiService.createQuestion(questionData, token);
+        const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/test-questions`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to create question');
+        }
       }
       
       setQuestionFormOpen(false);
@@ -580,18 +619,29 @@ const TestPage: React.FC = () => {
                         </div>
                         <div className="flex-1">
                           <h4 className="font-semibold text-gray-900 mb-3">{question.question}</h4>
+                          {question.image_url && (
+                            <div className="mb-4">
+                              <img 
+                                src={`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/${question.image_url}`} 
+                                alt="Question image" 
+                                className="max-w-full h-auto max-h-64 rounded border"
+                              />
+                            </div>
+                          )}
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
                             {question.options.map((option: any, optIndex: number) => (
-                              <div key={optIndex} className={`p-2 rounded border ${
-                                option.text === question.correct_answer 
-                                  ? 'bg-green-100 border-green-300 text-green-800' 
-                                  : 'bg-white border-gray-200'
-                              }`}>
-                                <span className="font-medium">{option.label}.</span> {option.text}
-                                {option.text === question.correct_answer && (
-                                  <span className="ml-2 text-green-600 font-bold">✓ Correct</span>
-                                )}
-                              </div>
+                              option.text && ( // Only show options that have text
+                                <div key={optIndex} className={`p-2 rounded border ${
+                                  option.text === question.correct_answer 
+                                    ? 'bg-green-100 border-green-300 text-green-800' 
+                                    : 'bg-white border-gray-200'
+                                }`}>
+                                  <span className="font-medium">{option.label}.</span> {option.text}
+                                  {option.text === question.correct_answer && (
+                                    <span className="ml-2 text-green-600 font-bold">✓ Correct</span>
+                                  )}
+                                </div>
+                              )
                             ))}
                           </div>
                           {question.explanation && (
@@ -652,6 +702,21 @@ const TestPage: React.FC = () => {
                     required 
                   />
                 </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Question Image (Optional)</label>
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                    onChange={(e) => setQuestionImage(e.target.files?.[0] || null)} 
+                  />
+                  {questionImage && (
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-600">Selected: {questionImage.name}</p>
+                    </div>
+                  )}
+                </div>
                 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Options</label>
@@ -661,10 +726,10 @@ const TestPage: React.FC = () => {
                         <span className="w-8 text-sm font-medium text-gray-600">{option.label}.</span>
                         <input 
                           className="flex-1 border rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500" 
-                          placeholder={`Option ${option.label}`}
+                          placeholder={`Option ${option.label}${index === 4 ? ' (Optional)' : ''}`}
                           value={option.text} 
                           onChange={(e) => handleOptionChange(index, e.target.value)} 
-                          required 
+                          required={index < 4} // Only A, B, C, D are required
                         />
                         <input 
                           type="radio" 
@@ -673,11 +738,13 @@ const TestPage: React.FC = () => {
                           checked={questionPayload.correct_answer === option.text}
                           onChange={(e) => setQuestionPayload({ ...questionPayload, correct_answer: e.target.value })}
                           className="w-4 h-4 text-green-600"
+                          disabled={!option.text} // Disable if option is empty
                         />
                         <span className="text-sm text-gray-600">Correct</span>
                       </div>
                     ))}
                   </div>
+                  <p className="text-xs text-gray-500 mt-2">Note: Options A-D are required, Option E is optional</p>
                 </div>
 
                 <div>
@@ -731,12 +798,31 @@ const TestPage: React.FC = () => {
                           
                           setSubmitting(true);
                           try {
-                            const questionData = {
-                              test_id: selectedTest._id,
-                              question_number: questions.length + 1,
-                              ...questionPayload
-                            };
-                            await ApiService.createQuestion(questionData, token);
+                            const formData = new FormData();
+                            formData.append('test_id', selectedTest._id);
+                            formData.append('question_number', (questions.length + 1).toString());
+                            formData.append('question', questionPayload.question);
+                            formData.append('options', JSON.stringify(questionPayload.options));
+                            formData.append('correct_answer', questionPayload.correct_answer);
+                            formData.append('explanation', questionPayload.explanation || '');
+                            formData.append('marks', questionPayload.marks.toString());
+                            
+                            if (questionImage) {
+                              formData.append('image', questionImage);
+                            }
+
+                            const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/test-questions`, {
+                              method: 'POST',
+                              headers: {
+                                'Authorization': `Bearer ${token}`
+                              },
+                              body: formData
+                            });
+                            
+                            if (!response.ok) {
+                              throw new Error('Failed to create question');
+                            }
+                            
                             resetQuestionForm();
                             await loadQuestions(selectedTest._id);
                           } catch (e: any) {
