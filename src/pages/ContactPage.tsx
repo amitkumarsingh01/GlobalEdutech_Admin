@@ -223,7 +223,7 @@ const ContactPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="md:col-span-2">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Company Name <span className="text-gray-400">(Optional)</span>
+                Company Name 
               </label>
               <input 
                 type="text"
@@ -239,7 +239,7 @@ const ContactPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Address <span className="text-gray-400">(Optional)</span>
+                Address 
               </label>
               <textarea 
                 className={`w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${validationErrors.address ? 'border-red-500' : 'border-gray-300'}`}
@@ -255,7 +255,7 @@ const ContactPage: React.FC = () => {
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Working Hours <span className="text-gray-400">(Optional)</span>
+                Working Hours 
               </label>
               <input 
                 type="text"
@@ -271,7 +271,7 @@ const ContactPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Phone Number <span className="text-gray-400">(Optional)</span>
+                Phone Number 
               </label>
               <input 
                 type="tel"
@@ -287,7 +287,7 @@ const ContactPage: React.FC = () => {
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Mobile Number <span className="text-gray-400">(Optional)</span>
+                Mobile Number 
               </label>
               <input 
                 type="tel"
@@ -306,7 +306,7 @@ const ContactPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Email Address <span className="text-gray-400">(Optional)</span>
+                Email Address 
               </label>
               <input 
                 type="email"
@@ -322,7 +322,7 @@ const ContactPage: React.FC = () => {
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Website <span className="text-gray-400">(Optional)</span>
+                Website 
               </label>
               <input 
                 type="url"
@@ -341,7 +341,7 @@ const ContactPage: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Emergency Contact <span className="text-gray-400">(Optional)</span>
+                Emergency Contact 
               </label>
               <input 
                 type="tel"
@@ -359,7 +359,7 @@ const ContactPage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Facebook <span className="text-gray-400">(Optional)</span>
+                  Facebook 
                 </label>
                 <input 
                   type="url"
@@ -375,7 +375,7 @@ const ContactPage: React.FC = () => {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Twitter <span className="text-gray-400">(Optional)</span>
+                  Twitter 
                 </label>
                 <input 
                   type="url"
@@ -391,7 +391,7 @@ const ContactPage: React.FC = () => {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Instagram <span className="text-gray-400">(Optional)</span>
+                  Instagram 
                 </label>
                 <input 
                   type="url"
@@ -407,7 +407,7 @@ const ContactPage: React.FC = () => {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  LinkedIn <span className="text-gray-400">(Optional)</span>
+                  LinkedIn 
                 </label>
                 <input 
                   type="url"
