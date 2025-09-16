@@ -294,7 +294,40 @@ const TestPage: React.FC = () => {
     try {
       const res = await ApiService.getTestById(test._id);
       if (res && res.test) {
-        setSelectedTest(res.test as any);
+        // Enrich feedback items with user name and contact_no
+        const testFull: any = res.test;
+        const feedback: any[] = (testFull.feedback || []) as any[];
+        const uniqueUserIds = Array.from(new Set(
+          feedback
+            .map((fb: any) => (typeof fb.user_id === 'string' ? fb.user_id : fb.user_id?._id || ''))
+            .filter((id: string) => !!id)
+        ));
+
+        const apiBase = (process.env.REACT_APP_API_URL || 'https://server.globaledutechlearn.com');
+        const userMap: Record<string, { name?: string; contact_no?: string }> = {};
+        await Promise.all(
+          uniqueUserIds.map(async (uid) => {
+            try {
+              const resp = await fetch(`${apiBase}/users/${uid}`);
+              if (resp.ok) {
+                const data = await resp.json();
+                const u = data.user || {};
+                userMap[uid] = { name: u.name, contact_no: u.contact_no };
+              }
+            } catch {}
+          })
+        );
+
+        testFull.feedback = feedback.map((fb: any) => {
+          const uid = typeof fb.user_id === 'string' ? fb.user_id : fb.user_id?._id || '';
+          const fromMap = uid ? userMap[uid] : undefined;
+          return {
+            ...fb,
+            user_name: fb.user_name || fromMap?.name || 'Unknown',
+            user_contact: fromMap?.contact_no || '',
+          };
+        });
+        setSelectedTest(testFull);
       }
     } catch (e) {
       // keep existing selected test if fetch fails
@@ -868,9 +901,15 @@ const TestPage: React.FC = () => {
                 <div className="space-y-3">
                   {(selectedTest as any).feedback.map((fb: any, idx: number) => (
                     <div key={idx} className="border rounded-lg p-3 bg-gray-50">
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between mb-1">
                         <div className="text-sm font-semibold text-gray-800">Rating: {fb.rating}/5</div>
                         <div className="text-xs text-gray-500">{fb.created_at ? new Date(fb.created_at).toLocaleString() : ''}</div>
+                      </div>
+                      <div className="text-sm text-gray-800">
+                        <span className="font-medium">Name:</span> {fb.user_name || 'Unknown'}
+                        {fb.user_contact && (
+                          <span className="ml-3"><span className="font-medium">Contact:</span> {fb.user_contact}</span>
+                        )}
                       </div>
                       {fb.comment && <p className="text-sm text-gray-700 mt-2">{fb.comment}</p>}
                     </div>
