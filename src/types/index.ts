@@ -210,9 +210,20 @@ export interface TermsItem {
 
 export interface ContactItem {
   _id: string;
+  company_name?: string;
   address?: string;
   phone?: string;
+  mobile?: string;
   email?: string;
+  website?: string;
+  working_hours?: string;
+  emergency_contact?: string;
+  social_media?: {
+    facebook?: string;
+    twitter?: string;
+    instagram?: string;
+    linkedin?: string;
+  };
   is_active: boolean;
   created_at: string;
   updated_at: string;
