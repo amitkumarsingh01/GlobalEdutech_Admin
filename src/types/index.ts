@@ -150,6 +150,8 @@ export interface TestQuestion {
   correct_answer: string;
   explanation?: string;
   marks: number;
+  image_url?: string;
+  description_images?: string[];
   difficulty_level: string;
   tags: string[];
   created_at: string;

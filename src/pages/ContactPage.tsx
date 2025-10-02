@@ -375,12 +375,12 @@ const ContactPage: React.FC = () => {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Twitter 
+                  Youtube 
                 </label>
                 <input 
                   type="url"
                   className={`w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${validationErrors.social_twitter ? 'border-red-500' : 'border-gray-300'}`}
-                  placeholder="https://twitter.com/yourhandle"
+                  placeholder="https://youtube.com/yourhandle"
                   value={form.social_media?.twitter || ''} 
                   onChange={(e) => handleSocialMediaChange('twitter', e.target.value)}
                 />
@@ -407,12 +407,12 @@ const ContactPage: React.FC = () => {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  LinkedIn 
+                  Whatsapp 
                 </label>
                 <input 
                   type="url"
                   className={`w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${validationErrors.social_linkedin ? 'border-red-500' : 'border-gray-300'}`}
-                  placeholder="https://linkedin.com/company/yourcompany"
+                  placeholder="https://whatsapp.com/company/yourcompany"
                   value={form.social_media?.linkedin || ''} 
                   onChange={(e) => handleSocialMediaChange('linkedin', e.target.value)}
                 />

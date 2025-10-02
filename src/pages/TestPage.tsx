@@ -36,6 +36,7 @@ const TestPage: React.FC = () => {
     marks: 1
   });
   const [questionImage, setQuestionImage] = useState<File | null>(null);
+  const [descriptionImages, setDescriptionImages] = useState<File[]>([]);
 
   // Filter options
   const difficultyLevels = ['Easy', 'Medium', 'Hard'];
@@ -136,6 +137,7 @@ const TestPage: React.FC = () => {
   const resetQuestionForm = () => {
     setEditingQuestion(null);
     setQuestionImage(null);
+    setDescriptionImages([]);
     setQuestionPayload({
       question: '',
       options: [
@@ -168,6 +170,7 @@ const TestPage: React.FC = () => {
         marks: question.marks
       });
       setQuestionImage(null); // Reset image for editing
+      setDescriptionImages([]); // Reset description images for editing
     } else {
       resetQuestionForm();
     }
@@ -198,6 +201,13 @@ const TestPage: React.FC = () => {
       
       if (questionImage) {
         formData.append('image', questionImage);
+      }
+
+      // Add description images
+      if (descriptionImages.length > 0) {
+        descriptionImages.forEach((image, index) => {
+          formData.append('description_images', image);
+        });
       }
 
       if (editingQuestion) {
@@ -661,6 +671,25 @@ const TestPage: React.FC = () => {
                               />
                             </div>
                           )}
+                          {question.description_images && question.description_images.length > 0 && (
+                            <div className="mb-4">
+                              <h5 className="text-sm font-medium text-gray-700 mb-2">Description Images:</h5>
+                              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                                {question.description_images.map((imageUrl: string, imgIndex: number) => (
+                                  <img 
+                                    key={imgIndex}
+                                    src={`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/${imageUrl}`} 
+                                    alt={`Description image ${imgIndex + 1}`} 
+                                    className="w-full h-24 object-cover rounded border cursor-pointer hover:opacity-80"
+                                    onClick={() => {
+                                      // Open image in new tab for full view
+                                      window.open(`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/${imageUrl}`, '_blank');
+                                    }}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                          )}
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
                             {question.options.map((option: any, optIndex: number) => (
                               option.text && ( // Only show options that have text
@@ -747,6 +776,30 @@ const TestPage: React.FC = () => {
                   {questionImage && (
                     <div className="mt-2">
                       <p className="text-sm text-gray-600">Selected: {questionImage.name}</p>
+                    </div>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-1">Description Images (Optional)</label>
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    multiple
+                    className="border rounded-lg px-3 py-2 w-full focus:ring-2 focus:ring-green-500 focus:border-green-500" 
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []);
+                      setDescriptionImages(files);
+                    }} 
+                  />
+                  {descriptionImages.length > 0 && (
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-600">Selected {descriptionImages.length} image(s):</p>
+                      <ul className="text-xs text-gray-500 mt-1">
+                        {descriptionImages.map((file, index) => (
+                          <li key={index} className="truncate">• {file.name}</li>
+                        ))}
+                      </ul>
                     </div>
                   )}
                 </div>
