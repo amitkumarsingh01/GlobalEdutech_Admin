@@ -205,7 +205,7 @@ const TestPage: React.FC = () => {
 
       // Add description images
       if (descriptionImages.length > 0) {
-        descriptionImages.forEach((image, index) => {
+        descriptionImages.forEach((image) => {
           formData.append('description_images', image);
         });
       }
