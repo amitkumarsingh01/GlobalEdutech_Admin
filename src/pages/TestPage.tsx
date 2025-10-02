@@ -212,7 +212,7 @@ const TestPage: React.FC = () => {
 
       if (editingQuestion) {
         // For editing, we need to handle this differently since we're using FormData
-        const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/test-questions/${editingQuestion._id}`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://server.globaledutechlearn.com'}/test-questions/${editingQuestion._id}`, {
           method: 'PUT',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -224,7 +224,7 @@ const TestPage: React.FC = () => {
           throw new Error('Failed to update question');
         }
       } else {
-        const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/test-questions`, {
+        const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://server.globaledutechlearn.com'}/test-questions`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -665,7 +665,7 @@ const TestPage: React.FC = () => {
                           {question.image_url && (
                             <div className="mb-4">
                               <img 
-                                src={`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/${question.image_url}`} 
+                                src={`${process.env.REACT_APP_API_URL || 'https://server.globaledutechlearn.com'}/${question.image_url}`} 
                                 alt="Question image" 
                                 className="max-w-full h-auto max-h-64 rounded border"
                               />
@@ -678,12 +678,12 @@ const TestPage: React.FC = () => {
                                 {question.description_images.map((imageUrl: string, imgIndex: number) => (
                                   <img 
                                     key={imgIndex}
-                                    src={`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/${imageUrl}`} 
+                                    src={`${process.env.REACT_APP_API_URL || 'https://server.globaledutechlearn.com'}/${imageUrl}`} 
                                     alt={`Description image ${imgIndex + 1}`} 
                                     className="w-full h-24 object-cover rounded border cursor-pointer hover:opacity-80"
                                     onClick={() => {
                                       // Open image in new tab for full view
-                                      window.open(`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/${imageUrl}`, '_blank');
+                                      window.open(`${process.env.REACT_APP_API_URL || 'https://server.globaledutechlearn.com'}/${imageUrl}`, '_blank');
                                     }}
                                   />
                                 ))}
@@ -897,7 +897,7 @@ const TestPage: React.FC = () => {
                               formData.append('image', questionImage);
                             }
 
-                            const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/test-questions`, {
+                            const response = await fetch(`${process.env.REACT_APP_API_URL || 'https://server.globaledutechlearn.com'}/test-questions`, {
                               method: 'POST',
                               headers: {
                                 'Authorization': `Bearer ${token}`
